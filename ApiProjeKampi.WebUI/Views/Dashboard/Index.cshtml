@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/AdminLayout/Index.cshtml";
+}
+
+<section class="section">
+   
+    @await Component.InvokeAsync("_DashboardWidgetsComponentPartial")
+
+    @await Component.InvokeAsync("_DashboardMainChartComponentPartial")
+
+    
+
+    @await Component.InvokeAsync("_DashboardGroupReservationComponentPartial")
+   
+    <div class="row">
+
+        @await Component.InvokeAsync("_DashboardAIDailyMenuSuggestionComponentPartial")
+
+        @await Component.InvokeAsync("_DashboardClaudeAIComponentPartial")
+
+       
+    </div>
+</section>
+
+
+<script src="/otika-bootstrap-admin-template/assets/js/app.min.js"></script>
+<!-- JS Libraies -->
+<script src="/otika-bootstrap-admin-template/assets/bundles/apexcharts/apexcharts.min.js"></script>
+<!-- Page Specific JS File -->
+<script src="/otika-bootstrap-admin-template/assets/js/page/index.js"></script>
+<!-- Template JS File -->
+<script src="/otika-bootstrap-admin-template/assets/js/scripts.js"></script>
+<!-- Custom JS File -->
+<script src="/otika-bootstrap-admin-template/assets/js/custom.js"></script>
