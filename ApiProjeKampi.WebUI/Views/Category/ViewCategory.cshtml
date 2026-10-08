@@ -1,0 +1,211 @@
+﻿@using ApiProjeKampi.WebUI.Dtos.ProductDtos
+@model List<ResultProductDto>
+
+@{
+    ViewData["Title"] = "Kategori Ürünleri";
+    Layout = "~/Views/AdminLayout/Index.cshtml";
+    string categoryName = ViewBag.CategoryName ?? "Kategori";
+    int count = 0;
+}
+
+<style>
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,.07);
+        overflow: hidden;
+    }
+
+    .product-header {
+        padding: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .product-title {
+        color: #667eea;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .back-btn {
+        background: #667eea;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+
+        .back-btn:hover {
+            background: #5268d5;
+            color: white;
+        }
+
+    .product-table thead th {
+        background: #f8f9ff;
+        color: #667eea;
+        padding: 16px;
+        font-weight: 600;
+    }
+
+    .product-table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+    }
+
+    .product-table tbody tr:hover {
+        background: #f8f9ff;
+    }
+
+    .product-image {
+        width: 75px;
+        height: 75px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .price-badge {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .empty-products {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .product-footer {
+        padding: 18px 24px;
+        background: #fafaff;
+        border-top: 1px solid #eee;
+    }
+</style>
+
+<section class="section">
+    <div class="section-body">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card product-card">
+
+                    <div class="product-header">
+                        <h4 class="product-title">
+                            <i class="fas fa-utensils"></i>
+                            @categoryName - Ürün Listesi
+                        </h4>
+
+                        <a href="/Category/CategoryList"
+                           class="back-btn">
+                            <i class="fas fa-arrow-left"></i>
+                            Kategorilere Dön
+                        </a>
+                    </div>
+
+                    <div class="card-body p-0">
+
+                        @if (Model != null && Model.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table product-table">
+
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Fotoğraf</th>
+                                            <th>Ürün Adı</th>
+                                            <th>Açıklama</th>
+                                            <th>Fiyat</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            count++;
+
+                                            <tr>
+                                                <td>
+                                                    <strong>@count</strong>
+                                                </td>
+
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                                    {
+                                                        <img src="@item.ImageUrl"
+                                                             class="product-image"
+                                                             alt="@item.ProductName" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-image fa-2x text-muted"></i>
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    <strong>
+                                                        @item.ProductName
+                                                    </strong>
+                                                </td>
+
+                                                <td>
+                                                    @item.ProductDescription
+                                                </td>
+
+                                                <td>
+                                                    <span class="price-badge">
+                                                        @item.Price.ToString("N2") ₺
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-products">
+                                <i class="fas fa-box-open fa-3x mb-3"></i>
+
+                                <h5>
+                                    Bu kategoriye ait ürün bulunamadı.
+                                </h5>
+
+                                <p>
+                                    Henüz bu kategoriye ürün eklenmemiş.
+                                </p>
+
+                                <a href="/Product/CreateProduct"
+                                   class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Yeni Ürün Ekle
+                                </a>
+                            </div>
+                        }
+
+                    </div>
+
+                    <div class="product-footer">
+                        <i class="fas fa-info-circle"></i>
+                        Toplam
+                        <strong>@(Model?.Count ?? 0)</strong>
+                        ürün listelendi.
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

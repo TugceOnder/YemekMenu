@@ -3,7 +3,6 @@ using ApiProjeKampi.WebApi.Dtos.ProductDtos;
 using ApiProjeKampi.WebApi.Entities;
 using AutoMapper;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +15,7 @@ namespace ApiProjeKampi.WebApi.Controllers
         private readonly IValidator<Product> _validator;
         private readonly ApiContext _context;
         private readonly IMapper _mapper;
+
         public ProductsController(IValidator<Product> validator, ApiContext context, IMapper mapper)
         {
             _validator = validator;
@@ -38,18 +38,18 @@ namespace ApiProjeKampi.WebApi.Controllers
             {
                 return BadRequest(validationResult.Errors.Select(x => x.ErrorMessage));
             }
-            else
-            {
-                _context.Products.Add(product);
-                _context.SaveChanges();
-                return Ok("Ürün ekleme işlemi başarılı");
-            }
+
+            _context.Products.Add(product);
+            _context.SaveChanges();
+            return Ok("Ürün ekleme işlemi başarılı");
         }
 
         [HttpDelete]
         public IActionResult DeleteProduct(int id)
         {
             var value = _context.Products.Find(id);
+            if (value == null) return NotFound("Silinecek ürün bulunamadı.");
+
             _context.Products.Remove(value);
             _context.SaveChanges();
             return Ok("Silme işlemi başarılı");
@@ -58,24 +58,34 @@ namespace ApiProjeKampi.WebApi.Controllers
         [HttpGet("GetProduct")]
         public IActionResult GetProduct(int id)
         {
-            var value = _context.Products.Find(id);
-            return Ok(value);
+            var product = _context.Products.FirstOrDefault(x => x.ProductId == id);
+            if (product == null) return NotFound("Ürün bulunamadı.");
+
+            return Ok(product);
         }
 
         [HttpPut]
-        public IActionResult UpdateProduct(Product product)
+        public IActionResult UpdateProduct([FromBody] Product product)
         {
+            if (product == null) return BadRequest("Ürün bilgileri boş olamaz.");
+
+            var existingProduct = _context.Products.FirstOrDefault(x => x.ProductId == product.ProductId);
+            if (existingProduct == null) return NotFound("Güncellenecek ürün bulunamadı.");
+
             var validationResult = _validator.Validate(product);
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors.Select(x => x.ErrorMessage));
+                return BadRequest(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
             }
-            else
-            {
-                _context.Products.Update(product);
-                _context.SaveChanges();
-                return Ok("Ürün güncelleme işlemi başarılı");
-            }
+
+            existingProduct.ProductName = product.ProductName;
+            existingProduct.ProductDescription = product.ProductDescription;
+            existingProduct.Price = product.Price;
+            existingProduct.ImageUrl = product.ImageUrl;
+            existingProduct.CategoryId = product.CategoryId;
+
+            _context.SaveChanges();
+            return Ok("Ürün başarıyla güncellendi.");
         }
 
         [HttpPost("CreateProductWithCategory")]

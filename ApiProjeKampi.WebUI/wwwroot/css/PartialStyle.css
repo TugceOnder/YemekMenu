@@ -1,0 +1,482 @@
+﻿
+.modern-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: none;
+}
+
+.modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .modern-table thead th {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        color: #667eea;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+        border-bottom: 2px solid #667eea;
+    }
+
+        .modern-table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .modern-table thead th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .modern-table tbody tr:hover {
+            background-color: #f8f9ff;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+    .modern-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+.badge-status {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.modern-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .modern-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.btn-create {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.category-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.stats-badge {
+    background: #f0f0f0;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.modern-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: none;
+}
+
+.modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .modern-table thead th {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        color: #667eea;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+        border-bottom: 2px solid #667eea;
+    }
+
+        .modern-table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .modern-table thead th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .modern-table tbody tr:hover {
+            background-color: #f8f9ff;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+    .modern-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+.product-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.price-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.category-tag {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 0.4rem 0.9rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.modern-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .modern-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.btn-create {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+
+.modern-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.07);
+    border: none;
+    overflow: hidden;
+}
+
+.modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .modern-table thead th {
+        background: linear-gradient(135deg,#f8f9ff,#e8ecff);
+        color: #667eea;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: .75rem;
+        padding: 1rem;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .modern-table tbody tr {
+        transition: background .2s;
+    }
+
+        .modern-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+    .modern-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+.modern-btn {
+    padding: .5rem .9rem;
+    border-radius: 8px;
+    font-size: .875rem;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    text-decoration: none;
+    white-space: nowrap;
+    color: white;
+}
+
+    .modern-btn:hover {
+        color: white;
+        opacity: .9;
+    }
+
+.btn-view {
+    background: linear-gradient(135deg,#4facfe,#00c6ff);
+}
+
+.btn-edit {
+    background: linear-gradient(135deg,#667eea,#764ba2);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg,#f093fb,#f5576c);
+}
+
+.btn-create {
+    background: linear-gradient(135deg,#43e97b,#38bfa7);
+}
+
+.category-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.stats-badge {
+    background: #eef1ff;
+    color: #596dd1;
+    padding: .5rem .8rem;
+    border-radius: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-active {
+    background: #d4edda;
+    color: #155724;
+    padding: .5rem .8rem;
+    border-radius: 20px;
+    font-size: .8rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+
+.modern-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: none;
+}
+
+.modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .modern-table thead th {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        color: #667eea;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+        border-bottom: 2px solid #667eea;
+    }
+
+        .modern-table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .modern-table thead th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .modern-table tbody tr:hover {
+            background-color: #f8f9ff;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+    .modern-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+.product-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.price-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.category-tag {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 0.4rem 0.9rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.modern-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .modern-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.btn-create {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+#sortableCategories tr[data-id] {
+    cursor: grab;
+}
+
+    #sortableCategories tr[data-id]:active {
+        cursor: grabbing;
+    }
+
+    #sortableCategories tr[data-id] a {
+        cursor: pointer;
+    }
+
+.sortable-ghost {
+    opacity: 0.4;
+    background: #eef1ff !important;
+}
+
+.sortable-chosen {
+    background: #f8f9ff !important;
+}
+
+

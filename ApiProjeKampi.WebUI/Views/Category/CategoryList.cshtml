@@ -1,15 +1,26 @@
-﻿@model List<ResultCategoryDto>
+﻿@model List<ApiProjeKampi.WebUI.Dtos.CategoryDtos.ResultCategoryDto>
+
 @{
-    ViewData["Title"] = "CategoryList";
+    ViewData["Title"] = "Kategori Yönetimi";
     Layout = "~/Views/AdminLayout/Index.cshtml";
-    int count = 0;
+
+    var categories = Model ??
+        new List<ApiProjeKampi.WebUI.Dtos.CategoryDtos.ResultCategoryDto>();
+
+    var productCounts =
+        ViewBag.ProductCounts as Dictionary<int, int>
+        ?? new Dictionary<int, int>();
 }
+
+<link rel="stylesheet"
+      href="~/css/PartialStyle.css"
+      asp-append-version="true" />
 
 <style>
     .modern-card {
         border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
         border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,.07);
     }
 
     .modern-table {
@@ -18,110 +29,117 @@
     }
 
         .modern-table thead th {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            background: #f0f2ff;
             color: #667eea;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            padding: 1rem;
-            border: none;
+            padding: 15px;
             border-bottom: 2px solid #667eea;
         }
 
-            .modern-table thead th:first-child {
-                border-top-left-radius: 10px;
-            }
-
-            .modern-table thead th:last-child {
-                border-top-right-radius: 10px;
-            }
-
-        .modern-table tbody tr {
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-            .modern-table tbody tr:hover {
-                background-color: #f8f9ff;
-                transform: scale(1.01);
-                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-            }
-
         .modern-table tbody td {
-            padding: 1rem;
+            padding: 15px;
             vertical-align: middle;
         }
 
-    .badge-status {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .badge-active {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .modern-btn {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-        .modern-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        .modern-table tbody tr {
+            transition: background-color .2s;
         }
 
-    .btn-edit {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .btn-delete {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-    }
-
-    .btn-view {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-    }
-
-    .btn-create {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
+            .modern-table tbody tr:hover {
+                background: #f8f9ff;
+            }
 
     .category-icon {
         width: 40px;
         height: 40px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg,#667eea,#764ba2);
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 1.2rem;
+    }
+
+    .badge-status {
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-active {
+        background: #d4edda;
+        color: #155724;
     }
 
     .stats-badge {
         background: #f0f0f0;
-        padding: 0.25rem 0.75rem;
         border-radius: 15px;
-        font-size: 0.8rem;
+        padding: 6px 12px;
         color: #666;
+    }
+
+    .modern-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: white;
+        font-size: 13px;
+    }
+
+        .modern-btn:hover {
+            color: white;
+            text-decoration: none;
+            opacity: .9;
+        }
+
+    .btn-create {
+        background: linear-gradient(135deg,#43e97b,#38f9d7);
+    }
+
+    .btn-view {
+        background: linear-gradient(135deg,#4facfe,#00f2fe);
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg,#667eea,#764ba2);
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg,#f093fb,#f5576c);
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .sort-info {
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        background: #f0f3ff;
+        color: #596dd1;
+        border-radius: 8px;
+    }
+
+    .drag-handle {
+        color: #667eea;
+        cursor: grab;
+        margin-right: 10px;
+    }
+
+    .sortable-ghost {
+        opacity: .4;
+        background: #eef1ff !important;
+    }
+
+    .sortable-chosen {
+        background: #f8f9ff !important;
     }
 </style>
 
@@ -129,86 +147,285 @@
     <div class="section-body">
         <div class="row">
             <div class="col-12">
+
+                <form id="orderTokenForm" method="post">
+                    @Html.AntiForgeryToken()
+                </form>
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        @TempData["Error"]
+                    </div>
+                }
+
+                <div class="sort-info">
+                    <i class="fas fa-info-circle"></i>
+                    Kategorileri sıralamak için soldaki taşıma simgesini
+                    tutup yukarı veya aşağı sürükleyebilirsiniz.
+                </div>
+
+                <div id="orderMessage"
+                     role="status"
+                     aria-live="polite"></div>
+
                 <div class="card modern-card">
-                    <div class="card-header" style="background: white; border-bottom: 2px solid #f0f0f0; border-radius: 15px 15px 0 0;">
-                        <h4 style="color: #667eea; font-weight: 700; margin: 0;">
-                            <i class="fas fa-list-ul" style="margin-right: 10px;"></i>
+
+                    <div class="card-header"
+                         style="background:white;padding:20px;">
+
+                        <h4 style="color:#667eea;font-weight:700;margin:0;">
+                            <i class="fas fa-list-ul"></i>
                             Kategori Yönetimi
                         </h4>
+
                         <div class="card-header-action">
-                            <a href="/Category/CreateCategory/" class="modern-btn btn-create">
+                            <a href="/Category/CreateCategory"
+                               class="modern-btn btn-create">
                                 <i class="fas fa-plus"></i>
                                 Yeni Kategori
                             </a>
                         </div>
                     </div>
-                    <div class="card-body" style="padding: 0;">
+
+                    <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table modern-table">
                                 <thead>
                                     <tr>
-                                        <th scope="col" style="width: 8%;">#</th>
-                                        <th scope="col" style="width: 8%;"></th>
-                                        <th scope="col" style="width: 30%;">Kategori Adı</th>
-                                        <th scope="col" style="width: 18%;">Durum</th>
-                                        <th scope="col" style="width: 18%;">Ürün Sayısı</th>
-                                        <th scope="col" style="width: 18%;" class="text-center">İşlemler</th>
+                                        <th>Sıra</th>
+                                        <th></th>
+                                        <th>Kategori Adı</th>
+                                        <th>Durum</th>
+                                        <th>Ürün Sayısı</th>
+                                        <th class="text-center">İşlemler</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach (var item in Model)
+
+                                <tbody id="sortableCategories">
+
+                                    @if (categories.Count > 0)
                                     {
-                                        count++;
+                                        for (int i = 0; i < categories.Count; i++)
+                                        {
+                                            var item = categories[i];
+
+                                            var productCount =
+                                            productCounts.TryGetValue(
+                                            item.CategoryId,
+                                            out var adet)
+                                            ? adet : 0;
+
+                                            <tr data-id="@item.CategoryId">
+
+                                                <td>
+                                                    <span class="drag-handle"
+                                                          title="Sürükleyerek sırala">
+                                                        <i class="fas fa-grip-vertical"></i>
+                                                    </span>
+
+                                                    <strong class="row-number">
+                                                        @(i + 1)
+                                                    </strong>
+                                                </td>
+
+                                                <td>
+                                                    <div class="category-icon">
+                                                        <i class="fas fa-tag"></i>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    <strong>
+                                                        @item.CategoryName
+                                                    </strong>
+                                                </td>
+
+                                                <td>
+                                                    <span class="badge-status badge-active">
+                                                        <i class="fas fa-check-circle"></i>
+                                                        Aktif
+                                                    </span>
+                                                </td>
+
+                                                <td>
+                                                    <span class="stats-badge">
+                                                        <i class="fas fa-box"></i>
+                                                        @productCount ürün
+                                                    </span>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <div class="action-buttons">
+
+                                                        <a href="/Category/ViewCategory/@item.CategoryId"
+                                                           class="modern-btn btn-view">
+                                                            <i class="fas fa-eye"></i>
+                                                            Görüntüle
+                                                        </a>
+
+                                                        <a href="/Category/UpdateCategory/@item.CategoryId"
+                                                           class="modern-btn btn-edit">
+                                                            <i class="fas fa-edit"></i>
+                                                            Düzenle
+                                                        </a>
+
+                                                        <a href="/Category/DeleteCategory/@item.CategoryId"
+                                                           class="modern-btn btn-delete"
+                                                           onclick="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                            Sil
+                                                        </a>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
                                         <tr>
-                                            <td><strong>@count</strong></td>
-                                            <td>
-                                                <div class="category-icon">
-                                                    <i class="fas fa-tag"></i>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <strong style="color: #333; font-size: 1rem;">@item.CategoryName</strong>
-                                            </td>
-                                            <td>
-                                                <span class="badge-status badge-active">
-                                                    <i class="fas fa-check-circle"></i> Aktif
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="stats-badge">
-                                                    <i class="fas fa-box"></i> @Random.Shared.Next(5, 50) ürün
-                                                </span>
-                                            </td>
-                                            <td class="text-center">
-                                                <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                                                    <a href="/Category/ViewCategory/@item.CategoryId/" class="modern-btn btn-view" title="Görüntüle">
-                                                        <i class="fas fa-eye"></i>
-                                                        Görüntüle
-                                                    </a>
-                                                    <a href="/Category/UpdateCategory/@item.CategoryId/" class="modern-btn btn-edit" title="Düzenle">
-                                                        <i class="fas fa-edit"></i>
-                                                        Düzenle
-                                                    </a>
-                                                    <a href="/Category/DeleteCategory/@item.CategoryId/" class="modern-btn btn-delete" title="Sil" onclick="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                        Sil
-                                                    </a>
-                                                </div>
+                                            <td colspan="6"
+                                                class="text-center text-muted"
+                                                style="padding:30px;">
+                                                Görüntülenecek kategori bulunamadı.
                                             </td>
                                         </tr>
                                     }
+
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="card-footer" style="background: white; border-top: 2px solid #f0f0f0;">
-                        <div style="color: #999; font-size: 0.875rem;">
-                            <i class="fas fa-info-circle"></i>
-                            Toplam <strong style="color: #667eea;">@Model.Count</strong> kategori listelendi
-                        </div>
+
+                    <div class="card-footer"
+                         style="background:white;padding:20px;">
+
+                        <i class="fas fa-info-circle"></i>
+                        Toplam
+                        <strong style="color:#667eea;">
+                            @categories.Count
+                        </strong>
+                        kategori listelendi.
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+
+<script>
+    (function () {
+        function initializeSorting() {
+            const tbody = document.getElementById("sortableCategories");
+            const message = document.getElementById("orderMessage");
+
+            const token = document.querySelector(
+                '#orderTokenForm input[name="__RequestVerificationToken"]'
+            );
+
+            if (!tbody || typeof Sortable === "undefined") {
+                if (message) {
+                    message.className = "alert alert-danger";
+                    message.textContent =
+                        "Sürükle-bırak kütüphanesi yüklenemedi.";
+                }
+                return;
+            }
+
+            const sortable = new Sortable(tbody, {
+                animation: 200,
+                draggable: "tr[data-id]",
+                handle: ".drag-handle",
+                ghostClass: "sortable-ghost",
+                chosenClass: "sortable-chosen",
+
+                onEnd: async function (evt) {
+                    if (evt.oldIndex === evt.newIndex)
+                        return;
+
+                    sortable.option("disabled", true);
+
+                    const rows = Array.from(
+                        tbody.querySelectorAll("tr[data-id]")
+                    );
+
+                    rows.forEach((row, index) => {
+                        const number = row.querySelector(".row-number");
+                        if (number)
+                            number.textContent = index + 1;
+                    });
+
+                    const categoryIds = rows.map(
+                        row => Number(row.dataset.id)
+                    );
+
+                    if (message) {
+                        message.className = "alert alert-info";
+                        message.textContent =
+                            "Kategori sıralaması kaydediliyor...";
+                    }
+
+                    try {
+                        if (!token) {
+                            throw new Error(
+                                "Güvenlik anahtarı bulunamadı.");
+                        }
+
+                        const response = await fetch(
+                            '@Url.Action("UpdateCategoryOrder", "Category")',
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "RequestVerificationToken": token.value
+                                },
+                                body: JSON.stringify(categoryIds)
+                            }
+                        );
+
+                        if (!response.ok) {
+                            throw new Error(
+                                "HTTP " + response.status +
+                                ": " + await response.text()
+                            );
+                        }
+
+                        if (message) {
+                            message.className = "alert alert-success";
+                            message.textContent =
+                                "Kategori sıralaması başarıyla kaydedildi.";
+                        }
+                    } catch (error) {
+                        console.error("Sıralama hatası:", error);
+
+                        if (message) {
+                            message.className = "alert alert-danger";
+                            message.textContent =
+                                "Sıralama kaydedilemedi: " + error.message;
+                        }
+
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 1500);
+                    } finally {
+                        sortable.option("disabled", false);
+                    }
+                }
+            });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener(
+                "DOMContentLoaded",
+                initializeSorting
+            );
+        } else {
+            initializeSorting();
+        }
+    })();
+</script>
