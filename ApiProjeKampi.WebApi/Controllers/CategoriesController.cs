@@ -1,270 +1,153 @@
 ﻿
 using ApiProjeKampi.WebApi.Context;
-using ApiProjeKampi.WebUI.Dtos.CategoryDtos;
-using ApiProjeKampi.WebUI.Dtos.ProductDtos;
+using ApiProjeKampi.WebApi.Dtos.CategoryDtos;
+using ApiProjeKampi.WebApi.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System.Text;
 
-
-namespace ApiProjeKampi.WebUI.Controllers
+namespace ApiProjeKampi.WebApi.Controllers
 {
-    public class CategoryController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CategoriesController : ControllerBase
     {
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ApiContext _context;
-        private const string ApiUrl =
-            "https://localhost:7020/api/";
 
-        public CategoryController(IHttpClientFactory httpClientFactory)
+        public CategoriesController(ApiContext context)
         {
-            _httpClientFactory = httpClientFactory;
+            _context = context;
         }
 
         // KATEGORİ LİSTESİ
         [HttpGet]
         public async Task<IActionResult> CategoryList()
         {
-            var values = _context.Categories.ToList();
-            return Ok(values);
+            var categories = await _context.Categories
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder == 0
+                    ? int.MaxValue
+                    : x.DisplayOrder)
+                .ThenBy(x => x.CategoryId)
+                .Select(x => new
+                {
+                    x.CategoryId,
+                    x.CategoryName,
+                    x.DisplayOrder
+                })
+                .ToListAsync();
+
+            return Ok(categories);
         }
 
-        // KATEGORİ EKLEME - GET
-        [HttpGet]
-        public IActionResult CreateCategory()
+        // KATEGORİ DETAYI
+        [HttpGet("GetCategory")]
+        public async Task<IActionResult> GetCategory(int id)
         {
-            return View();
+            var category = await _context.Categories
+                .AsNoTracking()
+                .Where(x => x.CategoryId == id)
+                .Select(x => new
+                {
+                    x.CategoryId,
+                    x.CategoryName
+                })
+                .FirstOrDefaultAsync();
+
+            if (category == null)
+                return NotFound();
+
+            return Ok(category);
         }
 
-        // KATEGORİ EKLEME - POST
+        // KATEGORİ EKLEME
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCategory(
-     CreateCategoryDto createCategoryDto)
+            [FromBody] CreateCategoryDto dto)
         {
-            if (!ModelState.IsValid)
-                return View(createCategoryDto);
+            var maxOrder = await _context.Categories
+                .MaxAsync(x => (int?)x.DisplayOrder) ?? 0;
 
-            var client = _httpClientFactory.CreateClient();
+            var category = new Category
+            {
+                CategoryName = dto.CategoryName,
+                DisplayOrder = maxOrder + 1
+            };
 
-            var json = JsonConvert.SerializeObject(createCategoryDto);
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
 
-            using var content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
+            return Ok(category);
+        }
 
-            var response = await client.PostAsync(
-                "https://localhost:7020/api/Categories",
-                content);
+        // KATEGORİ GÜNCELLEME
+        [HttpPut]
+        public async Task<IActionResult> UpdateCategory(
+            [FromBody] UpdateCategoryDto dto)
+        {
+            var category = await _context.Categories
+                .FindAsync(dto.CategoryId);
 
-            if (response.IsSuccessStatusCode)
-                return RedirectToAction("CategoryList");
+            if (category == null)
+                return NotFound();
 
-            ModelState.AddModelError(
-                "",
-                await response.Content.ReadAsStringAsync());
+            category.CategoryName = dto.CategoryName;
 
-            return View(createCategoryDto);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
         // KATEGORİ SİLME
-        [HttpGet]
+        [HttpDelete]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var client = _httpClientFactory.CreateClient();
+            var category = await _context.Categories
+                .FindAsync(id);
 
-            try
-            {
-                var response = await client.DeleteAsync(
-                    ApiUrl + $"Categories?id={id}");
+            if (category == null)
+                return NotFound();
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    TempData["Error"] =
-                        await response.Content.ReadAsStringAsync();
-                }
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(CategoryList));
-            }
-            catch (HttpRequestException)
-            {
-                TempData["Error"] = "WebApi bağlantısı kurulamadı.";
-
-                return RedirectToAction(nameof(CategoryList));
-            }
+            return Ok();
         }
 
-        // KATEGORİ GÜNCELLEME - GET
-        [HttpGet]
-        public async Task<IActionResult> UpdateCategory(int id)
+        // SÜRÜKLE-BIRAK SIRALAMASINI KAYDET
+        [HttpPut("UpdateOrder")]
+        public async Task<IActionResult> UpdateOrder(
+            [FromBody] List<CategoryOrderDto> orders)
         {
-            var client = _httpClientFactory.CreateClient();
-
-            try
-            {
-                var response = await client.GetAsync(
-                    ApiUrl + $"Categories/GetCategory?id={id}");
-
-                if (!response.IsSuccessStatusCode)
-                    return NotFound("Kategori bulunamadı.");
-
-                var json = await response.Content.ReadAsStringAsync();
-
-                var category =
-                    JsonConvert.DeserializeObject<GetCategoryByIdDto>(json);
-
-                if (category == null)
-                    return NotFound("Kategori bulunamadı.");
-
-                return View(category);
-            }
-            catch (HttpRequestException)
-            {
-                return StatusCode(503, "WebApi bağlantısı kurulamadı.");
-            }
-        }
-
-        // KATEGORİ GÜNCELLEME - POST
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateCategory(
-            GetCategoryByIdDto categoryDto)
-        {
-            if (!ModelState.IsValid)
-                return View(categoryDto);
-
-            var client = _httpClientFactory.CreateClient();
-
-            var json = JsonConvert.SerializeObject(categoryDto);
-
-            using var content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
-
-            try
-            {
-                var response = await client.PutAsync(
-                    ApiUrl + "Categories",
-                    content);
-
-                if (response.IsSuccessStatusCode)
-                    return RedirectToAction(nameof(CategoryList));
-
-                ModelState.AddModelError(
-                    "",
-                    await response.Content.ReadAsStringAsync());
-
-                return View(categoryDto);
-            }
-            catch (HttpRequestException)
-            {
-                ModelState.AddModelError(
-                    "",
-                    "WebApi bağlantısı kurulamadı.");
-
-                return View(categoryDto);
-            }
-        }
-
-        // KATEGORİ GÖRÜNTÜLEME
-        [HttpGet]
-        public async Task<IActionResult> ViewCategory(int id)
-        {
-            var client = _httpClientFactory.CreateClient();
-
-            try
-            {
-                var response = await client.GetAsync(
-                    ApiUrl + "Products");
-
-                if (!response.IsSuccessStatusCode)
-                    return StatusCode(
-                        (int)response.StatusCode,
-                        "Ürünler getirilemedi.");
-
-                var json = await response.Content.ReadAsStringAsync();
-
-                var products =
-                    JsonConvert.DeserializeObject<List<ResultProductDto>>(
-                        json) ?? new List<ResultProductDto>();
-
-                var filteredProducts = products
-                    .Where(x => x.CategoryId == id)
-                    .ToList();
-
-                return View(filteredProducts);
-            }
-            catch (HttpRequestException)
-            {
-                return StatusCode(503, "WebApi bağlantısı kurulamadı.");
-            }
-        }
-
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateCategoryOrder(
-            [FromBody] List<int> categoryIds)
-        {
-            if (categoryIds == null || categoryIds.Count == 0)
-            {
+            if (orders == null || orders.Count == 0)
                 return BadRequest("Kategori sıralaması boş.");
-            }
 
-            if (categoryIds.Distinct().Count() != categoryIds.Count)
-            {
+            var ids = orders.Select(x => x.CategoryId).ToList();
+
+            if (ids.Distinct().Count() != ids.Count)
                 return BadRequest("Tekrarlanan kategori var.");
-            }
 
-            var orders = categoryIds
-                .Select((id, index) => new
-                {
-                    CategoryId = id,
-                    DisplayOrder = index + 1
-                })
-                .ToList();
+            var categories = await _context.Categories
+                .Where(x => ids.Contains(x.CategoryId))
+                .ToListAsync();
 
-            try
+            if (categories.Count != ids.Count)
+                return BadRequest("Bazı kategoriler bulunamadı.");
+
+            foreach (var category in categories)
             {
-                using var client = new HttpClient();
+                var order = orders.First(
+                    x => x.CategoryId == category.CategoryId);
 
-                var json = System.Text.Json.JsonSerializer.Serialize(orders);
-
-                using var content = new StringContent(
-                    json,
-                    System.Text.Encoding.UTF8,
-                    "application/json");
-
-                var response = await client.PutAsync(
-                    "https://localhost:7020/api/Categories/UpdateOrder",
-                    content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-
-                    return StatusCode(
-                        (int)response.StatusCode,
-                        error);
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Sıralama kaydedildi."
-                });
+                category.DisplayOrder = order.DisplayOrder;
             }
-            catch (HttpRequestException ex)
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
             {
-                return StatusCode(503,
-                    "WebApi bağlantısı kurulamadı: " + ex.Message);
-            }
+                success = true,
+                message = "Sıralama kaydedildi."
+            });
         }
-
-
     }
 }
