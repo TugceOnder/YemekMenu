@@ -1,104 +1,451 @@
-﻿@model List<ResultProductDto>
+﻿@model List<ApiProjeKampi.WebUI.Dtos.ProductDtos.ResultProductDto>
+
 @{
     ViewData["Title"] = "ProductList";
     Layout = "~/Views/AdminLayout/Index.cshtml";
+
+    var products = Model ??
+        new List<ApiProjeKampi.WebUI.Dtos.ProductDtos.ResultProductDto>();
+
     int count = 0;
 }
 
-<link rel="stylesheet" href="~/css/PartialStyle.css" asp-append-version="true" />
+<link rel="stylesheet"
+      href="~/css/PartialStyle.css"
+      asp-append-version="true" />
+
+<style>
+    /* Sürükle bırak */
+    .drag-handle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #667eea;
+        font-size: 18px;
+        margin-right: 10px;
+        cursor: grab;
+        padding: 5px;
+    }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+    .sortable-ghost {
+        opacity: 0.4;
+        background: #e8ecff !important;
+    }
+
+    .sortable-chosen {
+        background: #f8f9ff !important;
+    }
+
+    /* Tablo */
+    .modern-table {
+        width: 100%;
+        min-width: 1150px;
+    }
+
+        .modern-table thead th {
+            white-space: nowrap;
+        }
+
+        .modern-table tbody td {
+            vertical-align: middle;
+        }
+
+    /* İşlem butonları */
+    .product-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+        .product-actions .modern-btn {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            gap: 6px;
+            padding: 9px 12px;
+            font-size: 13px;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+    .product-action-cell {
+        min-width: 355px;
+        white-space: nowrap;
+    }
+
+    #orderMessage:not(:empty) {
+        margin-bottom: 15px;
+    }
+</style>
 
 <section class="section">
     <div class="section-body">
         <div class="row">
             <div class="col-12">
+
+                <!-- Sıralama için güvenlik anahtarı -->
+                <form id="productOrderTokenForm" method="post">
+                    @Html.AntiForgeryToken()
+                </form>
+
+                <div id="orderMessage"
+                     role="status"
+                     aria-live="polite"></div>
+
                 <div class="card modern-card">
-                    <div class="card-header" style="background: white; border-bottom: 2px solid #f0f0f0; border-radius: 15px 15px 0 0;">
-                        <h4 style="color: #667eea; font-weight: 700; margin: 0;">
-                            <i class="fas fa-box-open" style="margin-right: 10px;"></i>
+
+                    <!-- Başlık -->
+                    <div class="card-header"
+                         style="background: white;
+                                border-bottom: 2px solid #f0f0f0;
+                                border-radius: 15px 15px 0 0;">
+
+                        <h4 style="color: #667eea;
+                                   font-weight: 700;
+                                   margin: 0;">
+
+                            <i class="fas fa-box-open"
+                               style="margin-right: 10px;"></i>
+
                             Ürün Listesi Yönetimi
                         </h4>
+
                         <div class="card-header-action">
-                            <a href="/Product/CreateProduct/" class="modern-btn btn-create">
+
+                            <a href="/Product/CreateProduct/"
+                               class="modern-btn btn-create">
+
                                 <i class="fas fa-plus"></i>
                                 Yeni Ürün Ekle
                             </a>
+
                         </div>
                     </div>
+
+                    <!-- Tablo -->
                     <div class="card-body" style="padding: 0;">
                         <div class="table-responsive">
+
                             <table class="table modern-table">
+
                                 <thead>
                                     <tr>
-                                        <th scope="col" style="width: 5%;">#</th>
-                                        <th scope="col" style="width: 5%;"></th>
-                                        <th scope="col" style="width: 25%;">Ürün Adı</th>
-                                        <th scope="col" style="width: 15%;">Fiyat</th>
-                                        <th scope="col" style="width: 15%;">Kategori</th>
-                                        <th scope="col" style="width: 10%;">Stok</th>
-                                        <th scope="col" style="width: 25%;" class="text-center">İşlemler</th>
+                                        <th scope="col" style="width: 8%;">
+                                            #
+                                        </th>
+
+                                        <th scope="col" style="width: 6%;"></th>
+
+                                        <th scope="col" style="width: 20%;">
+                                            Ürün Adı
+                                        </th>
+
+                                        <th scope="col" style="width: 12%;">
+                                            Fiyat
+                                        </th>
+
+                                        <th scope="col" style="width: 12%;">
+                                            Kategori
+                                        </th>
+
+                                        <th scope="col" style="width: 8%;">
+                                            Stok
+                                        </th>
+
+                                        <th scope="col"
+                                            style="width: 34%;"
+                                            class="text-center">
+                                            İşlemler
+                                        </th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach (var item in Model)
+
+                                <tbody id="sortableProducts">
+
+                                    @foreach (var item in products)
                                     {
                                         count++;
-                                        <tr>
-                                            <td><strong>@count</strong></td>
+
+                                        <tr data-id="@item.ProductId">
+
+                                            <!-- Sıra -->
+                                            <td>
+                                                <span class="drag-handle"
+                                                      title="Ürünü sürükleyerek sırala">
+                                                    <i class="fas fa-grip-vertical"></i>
+                                                </span>
+
+                                                <strong class="row-number">
+                                                    @count
+                                                </strong>
+                                            </td>
+
+                                            <!-- Ürün ikonu -->
                                             <td>
                                                 <div class="product-icon">
                                                     <i class="fas fa-utensils"></i>
                                                 </div>
                                             </td>
+
+                                            <!-- Ürün adı -->
                                             <td>
-                                                <strong style="color: #333; font-size: 1rem;">@item.ProductName</strong>
-                                                <br>
-                                                <small style="color: #999;">Ürün ID: #@item.ProductId</small>
+                                                <strong style="color: #333;
+                                                                   font-size: 1rem;">
+                                                    @item.ProductName
+                                                </strong>
+
+                                                <br />
+
+                                                <small style="color: #999;">
+                                                    Ürün ID: #@item.ProductId
+                                                </small>
                                             </td>
+
+                                            <!-- Fiyat -->
                                             <td>
                                                 <span class="price-badge">
-                                                    <i class="fas fa-lira-sign"></i> @item.Price.ToString("N2")
+                                                    <i class="fas fa-lira-sign"></i>
+                                                    @item.Price.ToString("N2")
                                                 </span>
                                             </td>
+
+                                            <!-- Kategori -->
                                             <td>
                                                 <span class="category-tag">
-                                                    <i class="fas fa-tag"></i> @item.CategoryName
+                                                    <i class="fas fa-tag"></i>
+                                                    @item.CategoryName
                                                 </span>
                                             </td>
+
+                                            <!-- Stok -->
                                             <td>
-                                                <span style="background: #fff3cd; color: #856404; padding: 0.3rem 0.7rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
-                                                    <i class="fas fa-cubes"></i> @Random.Shared.Next(10, 100)
+                                                <span style="background: #fff3cd;
+                                                                 color: #856404;
+                                                                 padding: 0.3rem 0.7rem;
+                                                                 border-radius: 12px;
+                                                                 font-size: 0.8rem;
+                                                                 font-weight: 600;
+                                                                 white-space: nowrap;">
+
+                                                    <i class="fas fa-cubes"></i>
+                                                    @Random.Shared.Next(10, 100)
                                                 </span>
                                             </td>
-                                            <td class="text-center">
-                                                <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                                                    <a href="/Product/ViewProduct/@item.ProductId/" class="modern-btn btn-view" title="Görüntüle">
+
+                                            <!-- İşlemler: Yan yana -->
+                                            <td class="text-center product-action-cell">
+
+                                                <div class="product-actions">
+
+                                                    <a href="/Product/ViewProduct/@item.ProductId/"
+                                                       class="modern-btn btn-view"
+                                                       title="Görüntüle">
+
                                                         <i class="fas fa-eye"></i>
                                                         Görüntüle
                                                     </a>
-                                                    <a href="/Product/UpdateProduct/@item.ProductId/" class="modern-btn btn-edit" title="Düzenle">
+
+                                                    <a href="/Product/UpdateProduct/@item.ProductId/"
+                                                       class="modern-btn btn-edit"
+                                                       title="Düzenle">
+
                                                         <i class="fas fa-edit"></i>
                                                         Düzenle
                                                     </a>
-                                                    <a href="/Product/DeleteProduct/@item.ProductId/" class="modern-btn btn-delete" title="Sil" onclick="return confirm('Bu ürünü silmek istediğinize emin misiniz?');">
+
+                                                    <a href="/Product/DeleteProduct/@item.ProductId/"
+                                                       class="modern-btn btn-delete"
+                                                       title="Sil"
+                                                       onclick="return confirm('Bu ürünü silmek istediğinize emin misiniz?');">
+
                                                         <i class="fas fa-trash-alt"></i>
                                                         Sil
                                                     </a>
+
                                                 </div>
                                             </td>
                                         </tr>
                                     }
+
+                                    @if (products.Count == 0)
+                                    {
+                                        <tr>
+                                            <td colspan="7"
+                                                class="text-center text-muted"
+                                                style="padding: 30px;">
+
+                                                Görüntülenecek ürün bulunamadı.
+
+                                            </td>
+                                        </tr>
+                                    }
+
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
-                    <div class="card-footer" style="background: white; border-top: 2px solid #f0f0f0;">
+
+                    <!-- Alt bilgi -->
+                    <div class="card-footer"
+                         style="background: white;
+                                border-top: 2px solid #f0f0f0;">
+
                         <div style="color: #999; font-size: 0.875rem;">
+
                             <i class="fas fa-info-circle"></i>
-                            Toplam <strong style="color: #667eea;">@Model.Count</strong> ürün listelendi
+
+                            Toplam
+                            <strong style="color: #667eea;">
+                                @products.Count
+                            </strong>
+                            ürün listelendi.
+
+                            <span style="margin-left: 12px;">
+                                <i class="fas fa-arrows-alt-v"></i>
+                                Sıralamak için taşıma ikonunu sürükleyin.
+                            </span>
+
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+
+<script>
+    (function () {
+
+        function initializeSorting() {
+
+            const tbody = document.getElementById("sortableProducts");
+            const message = document.getElementById("orderMessage");
+
+            const token = document.querySelector(
+                '#productOrderTokenForm input[name="__RequestVerificationToken"]'
+            );
+
+            if (!tbody || typeof Sortable === "undefined") {
+
+                if (message) {
+                    message.className = "alert alert-danger";
+                    message.textContent =
+                        "Sürükle-bırak kütüphanesi yüklenemedi.";
+                }
+
+                return;
+            }
+
+            const sortable = new Sortable(tbody, {
+
+                animation: 200,
+                draggable: "tr[data-id]",
+                handle: ".drag-handle",
+
+                ghostClass: "sortable-ghost",
+                chosenClass: "sortable-chosen",
+
+                onEnd: async function (evt) {
+
+                    if (evt.oldIndex === evt.newIndex)
+                        return;
+
+                    sortable.option("disabled", true);
+
+                    const rows = Array.from(
+                        tbody.querySelectorAll("tr[data-id]")
+                    );
+
+                    // Sıra numaralarını güncelle
+                    rows.forEach((row, index) => {
+
+                        const number = row.querySelector(".row-number");
+
+                        if (number)
+                            number.textContent = index + 1;
+                    });
+
+                    // Yeni ürün sırası
+                    const productIds = rows.map(
+                        row => Number(row.dataset.id)
+                    );
+
+                    message.className = "alert alert-info";
+                    message.textContent = "Ürün sıralaması kaydediliyor...";
+
+                    try {
+
+                        if (!token) {
+                            throw new Error(
+                                "Güvenlik anahtarı bulunamadı."
+                            );
+                        }
+
+                        const response = await fetch(
+                            '@Url.Action("UpdateProductOrder", "Product")',
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "RequestVerificationToken": token.value
+                                },
+
+                                body: JSON.stringify(productIds)
+                            }
+                        );
+
+                        if (!response.ok) {
+
+                            const errorText = await response.text();
+
+                            throw new Error(
+                                "HTTP " + response.status + ": " + errorText
+                            );
+                        }
+
+                        message.className = "alert alert-success";
+                        message.textContent =
+                            "Ürün sıralaması başarıyla kaydedildi.";
+
+                    } catch (error) {
+
+                        console.error("Sıralama hatası:", error);
+
+                        message.className = "alert alert-danger";
+                        message.textContent =
+                            "Sıralama kaydedilemedi: " + error.message;
+
+                    } finally {
+
+                        sortable.option("disabled", false);
+                    }
+                }
+            });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener(
+                "DOMContentLoaded",
+                initializeSorting
+            );
+        } else {
+            initializeSorting();
+        }
+
+    })();
+</script>

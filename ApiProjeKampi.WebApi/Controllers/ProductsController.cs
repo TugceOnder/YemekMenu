@@ -5,6 +5,7 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace ApiProjeKampi.WebApi.Controllers
 {
@@ -103,5 +104,49 @@ namespace ApiProjeKampi.WebApi.Controllers
             var value = _context.Products.Include(x => x.Category).ToList();
             return Ok(_mapper.Map<List<ResultProductWithCategoryDto>>(value));
         }
+
+        [HttpPut("UpdateOrder")]
+        public async Task<IActionResult> UpdateOrder(
+            [FromBody] List<ProductOrderDto> orders)
+        {
+            if (orders == null || orders.Count == 0)
+                return BadRequest("Ürün sıralaması boş.");
+
+            var ids = orders.Select(x => x.ProductId).ToList();
+
+            if (ids.Distinct().Count() != ids.Count)
+                return BadRequest("Tekrarlanan ürün var.");
+
+            if (orders.Any(x => x.DisplayOrder <= 0) ||
+                orders.Select(x => x.DisplayOrder).Distinct().Count() != orders.Count)
+            {
+                return BadRequest("Geçersiz sıralama değerleri.");
+            }
+
+            var products = await _context.Products
+                .Where(x => ids.Contains(x.ProductId))
+                .ToListAsync();
+
+            if (products.Count != ids.Count)
+                return BadRequest("Bazı ürünler bulunamadı.");
+
+            var orderLookup = orders.ToDictionary(
+                x => x.ProductId,
+                x => x.DisplayOrder);
+
+            foreach (var product in products)
+            {
+                product.DisplayOrder = orderLookup[product.ProductId];
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                message = "Ürün sıralaması kaydedildi."
+            });
+        }
+
     }
 }

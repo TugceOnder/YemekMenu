@@ -259,5 +259,64 @@ namespace ApiProjeKampi.WebUI.Controllers
 
             return View("UpdateProduct", updateProductDto);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProductOrder(
+            [FromBody] List<int> productIds)
+        {
+            if (productIds == null ||
+                productIds.Count == 0 ||
+                productIds.Distinct().Count() != productIds.Count)
+            {
+                return BadRequest("Geçersiz ürün sıralaması.");
+            }
+
+            var orders = productIds
+                .Select((id, index) => new
+                {
+                    ProductId = id,
+                    DisplayOrder = index + 1
+                })
+                .ToList();
+
+            var client = _httpClientFactory.CreateClient();
+
+            var json = JsonConvert.SerializeObject(orders);
+
+            using var content = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json");
+
+            try
+            {
+                var response = await client.PutAsync(
+                    "https://localhost:7020/api/Products/UpdateOrder",
+                    content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+
+                    return StatusCode(
+                        (int)response.StatusCode,
+                        error);
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Ürün sıralaması kaydedildi."
+                });
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(
+                    503,
+                    "WebApi bağlantı hatası: " + ex.Message);
+            }
+        }
+
     }
 }
