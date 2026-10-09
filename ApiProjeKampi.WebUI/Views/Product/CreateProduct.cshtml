@@ -1,38 +1,188 @@
-﻿@model CreateProductDto
+﻿@model ApiProjeKampi.WebUI.Dtos.ProductDtos.CreateProductDto
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
-    ViewData["Title"] = "CreateProduct";
+    ViewData["Title"] = "Yeni Ürün Ekle";
     Layout = "~/Views/AdminLayout/Index.cshtml";
 }
+
+<link rel="stylesheet" href="~/css/PartialStyle.css" asp-append-version="true" />
+
+<style>
+    .product-form-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    }
+
+        .product-form-card .card-header {
+            background: white;
+            border-bottom: 2px solid #f0f0f0;
+            padding: 20px;
+        }
+
+    .product-label {
+        display: block;
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 8px;
+    }
+
+    .product-input {
+        width: 100%;
+        border: 1px solid #dcdfe6;
+        border-radius: 8px;
+        padding: 11px 14px;
+    }
+
+    .file-upload-area {
+        border: 2px dashed #667eea;
+        background: #f8f9ff;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+        .file-upload-area input[type="file"] {
+            display: block !important;
+            width: 100%;
+            background: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+    .product-preview {
+        width: 220px;
+        max-width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-top: 15px;
+    }
+
+    .product-form-card .btn {
+        margin-right: 8px;
+        margin-top: 8px;
+    }
+</style>
 
 <section class="section">
     <div class="section-body">
         <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
-                <div class="card">
+            <div class="col-12">
+                <div class="card product-form-card">
+
                     <div class="card-header">
-                        <h4>Yeni Ürün Ekleme Sayfası</h4>
+                        <h4 style="color:#667eea; margin:0;">
+                            <i class="fas fa-plus-circle"></i>
+                            Yeni Ürün Ekle
+                        </h4>
                     </div>
+
                     <div class="card-body">
-                        <form method="post">
-                            <label>Ürün Adı</label>
-                            <input type="text" asp-for="ProductName" class="form-control" />
-                            <br />
-                            <label>Ürün Fiyatı</label>
-                            <input type="text" asp-for="Price" class="form-control" />
-                            <br />
-                            <label>Ürün Kategorisi</label>
-                            <select asp-for="CategoryId" class="form-control" asp-items="(IEnumerable<SelectListItem>)ViewBag.v">
-                            <option value="">--Kategori Seçiniz--</option>
-                        </select>
-                            <br />
-                            <label>Ürün Görsel URL</label>
-                            <input type="text" asp-for="ImageUrl" class="form-control" />
-                            <br />
-                            <label>Ürün Açıklaması</label>
-                            <textarea class="form-control" asp-for="ProductDescription" rows="5"></textarea>
-                            <br />
-                            <button class="btn btn-primary">Ürünü Oluştur</button>
+                        <form action="/Product/CreateProduct"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="text-danger mb-3"></div>
+
+                            <div class="form-group mb-3">
+                                <label class="product-label">Ürün Adı</label>
+                                <input asp-for="ProductName"
+                                       class="form-control product-input"
+                                       required />
+                                <span asp-validation-for="ProductName"
+                                      class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="product-label">Fiyat</label>
+                                <input asp-for="Price"
+                                       class="form-control product-input"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       required />
+                                <span asp-validation-for="Price"
+                                      class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="product-label">Kategori</label>
+                                <select asp-for="CategoryId"
+                                        asp-items="@(ViewBag.v as IEnumerable<SelectListItem>)"
+                                        class="form-control product-input"
+                                        required>
+                                    <option value="">Kategori Seçiniz</option>
+                                </select>
+                                <span asp-validation-for="CategoryId"
+                                      class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="product-label">Ürün Açıklaması</label>
+                                <textarea asp-for="ProductDescription"
+                                          rows="4"
+                                          class="form-control product-input"></textarea>
+                                <span asp-validation-for="ProductDescription"
+                                      class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="imageFile" class="product-label">
+                                    <i class="fas fa-camera"></i>
+                                    Ürün Fotoğrafı
+                                </label>
+
+                                <div class="file-upload-area">
+                                    <p style="color:#667eea; font-weight:600;">
+                                        Bilgisayardan veya telefondan fotoğraf seç
+                                    </p>
+
+                                    <input type="file"
+                                           id="imageFile"
+                                           name="imageFile"
+                                           accept=".jpg,.jpeg,.png,.webp" />
+
+                                    <small class="d-block text-muted mt-2">
+                                        JPG, PNG veya WEBP, maksimum 5 MB.
+                                        Fotoğraf eklemek isteğe bağlıdır.
+                                    </small>
+
+                                    <div class="text-danger mt-2">
+                                        @Html.ValidationMessage("imageFile")
+                                    </div>
+
+                                    <div>
+                                        <img id="imagePreview"
+                                             class="product-preview"
+                                             alt="Seçilen ürün fotoğrafı"
+                                             style="display:none;" />
+                                    </div>
+
+                                    <button type="button"
+                                            id="removeImageBtn"
+                                            class="btn btn-danger"
+                                            style="display:none;">
+                                        <i class="fas fa-trash"></i>
+                                        Seçilen Fotoğrafı Kaldır
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Ürünü Kaydet
+                            </button>
+
+                            <a href="/Product/ProductList"
+                               class="btn btn-secondary">
+                                Geri Dön
+                            </a>
+
                         </form>
                     </div>
                 </div>
@@ -41,3 +191,48 @@
     </div>
 </section>
 
+<script>
+    (function () {
+        const input = document.getElementById("imageFile");
+        const preview = document.getElementById("imagePreview");
+        const removeBtn = document.getElementById("removeImageBtn");
+
+        let objectUrl = null;
+
+        function clearPreview() {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = null;
+            }
+
+            preview.removeAttribute("src");
+            preview.style.display = "none";
+            removeBtn.style.display = "none";
+        }
+
+        input.addEventListener("change", function () {
+            clearPreview();
+
+            const file = this.files && this.files[0];
+
+            if (!file)
+                return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Fotoğraf en fazla 5 MB olabilir.");
+                input.value = "";
+                return;
+            }
+
+            objectUrl = URL.createObjectURL(file);
+            preview.src = objectUrl;
+            preview.style.display = "block";
+            removeBtn.style.display = "inline-block";
+        });
+
+        removeBtn.addEventListener("click", function () {
+            input.value = "";
+            clearPreview();
+        });
+    })();
+</script>

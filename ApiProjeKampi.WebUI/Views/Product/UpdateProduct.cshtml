@@ -1,90 +1,68 @@
-﻿@using ApiProjeKampi.WebUI.Dtos.ProductDtos
+﻿@model ApiProjeKampi.WebUI.Dtos.ProductDtos.UpdateProductDto
 @using Microsoft.AspNetCore.Mvc.Rendering
-@model UpdateProductDto
 
 @{
     ViewData["Title"] = "Ürün Güncelle";
     Layout = "~/Views/AdminLayout/Index.cshtml";
-
-    var categories =
-        ViewData["Categories"] as IEnumerable<SelectListItem>
-        ?? Enumerable.Empty<SelectListItem>();
-
-    var imageUrl = Model?.ImageUrl ?? "";
 }
 
+<link rel="stylesheet" href="~/css/PartialStyle.css" asp-append-version="true" />
+
 <style>
-    .update-card {
-        background: white;
+    .product-form-card {
+        border: none;
         border-radius: 15px;
-        border: none;
-        box-shadow: 0 4px 20px rgba(0,0,0,.08);
-        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,.08);
     }
 
-    .update-header {
-        background: linear-gradient(135deg,#667eea,#764ba2);
-        padding: 25px;
-        color: white;
-    }
-
-        .update-header h4 {
-            color: white;
-            font-weight: 700;
-            margin: 0;
+        .product-form-card .card-header {
+            background: white;
+            border-bottom: 2px solid #f0f0f0;
+            padding: 20px;
         }
 
-    .update-body {
-        padding: 30px;
-    }
-
-    .update-label {
-        font-weight: 600;
-        margin-bottom: 8px;
+    .product-label {
         display: block;
-    }
-
-    .update-input {
-        width: 100%;
-        border: 1px solid #ddd;
-        border-radius: 9px;
-        padding: 12px;
-    }
-
-        .update-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,.12);
-        }
-
-    .save-btn {
-        background: #667eea;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 12px 25px;
-        cursor: pointer;
-    }
-
-        .save-btn:hover {
-            background: #5266cb;
-        }
-
-    .back-btn {
-        background: #eee;
+        font-weight: 600;
         color: #444;
-        padding: 12px 25px;
-        border-radius: 8px;
-        text-decoration: none;
+        margin-bottom: 8px;
     }
 
-    .preview-image {
-        width: 160px;
-        height: 130px;
+    .product-input {
+        width: 100%;
+        border: 1px solid #dcdfe6;
+        border-radius: 8px;
+        padding: 11px 14px;
+    }
+
+    .file-upload-area {
+        border: 2px dashed #667eea;
+        background: #f8f9ff;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+        .file-upload-area input[type="file"] {
+            display: block !important;
+            width: 100%;
+            background: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+    .product-preview {
+        width: 220px;
+        max-width: 100%;
+        height: 160px;
         object-fit: cover;
         border-radius: 10px;
         margin-top: 12px;
-        border: 1px solid #eee;
+    }
+
+    .product-form-card .btn {
+        margin-right: 8px;
+        margin-top: 8px;
     }
 </style>
 
@@ -92,151 +70,153 @@
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card update-card">
+                <div class="card product-form-card">
 
-                    <div class="update-header">
-                        <h4>
+                    <div class="card-header">
+                        <h4 style="color:#667eea; margin:0;">
                             <i class="fas fa-edit"></i>
                             Ürün Güncelle
                         </h4>
                     </div>
 
-                    <div class="update-body">
+                    <div class="card-body">
+                        <form action="/Product/UpdateProduct"
+                              method="post"
+                              enctype="multipart/form-data">
 
-                        @if (Model == null)
-                        {
-                            <div class="alert alert-danger">
-                                Ürün bilgileri yüklenemedi.
+                            @Html.AntiForgeryToken()
+
+                            <input asp-for="ProductId" type="hidden" />
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="text-danger mb-3"></div>
+
+                            <div class="form-group mb-3">
+                                <label class="product-label">Ürün Adı</label>
+                                <input asp-for="ProductName"
+                                       class="form-control product-input"
+                                       required />
+                                <span asp-validation-for="ProductName"
+                                      class="text-danger"></span>
                             </div>
 
-                            <a href="/Product/ProductList"
-                               class="back-btn">
-                                Ürün Listesine Dön
-                            </a>
-                        }
-                        else
-                        {
-                            <form asp-controller="Product"
-                                  asp-action="UpdateProduct"
-                                  method="post">
+                            <div class="form-group mb-3">
+                                <label class="product-label">Fiyat</label>
+                                <input asp-for="Price"
+                                       class="form-control product-input"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       required />
+                                <span asp-validation-for="Price"
+                                      class="text-danger"></span>
+                            </div>
 
-                                @Html.AntiForgeryToken()
+                            <div class="form-group mb-3">
+                                <label class="product-label">Kategori</label>
+                                <select asp-for="CategoryId"
+                                        asp-items="@(ViewBag.v as IEnumerable<SelectListItem>)"
+                                        class="form-control product-input"
+                                        required>
+                                    <option value="">Kategori Seçiniz</option>
+                                </select>
+                                <span asp-validation-for="CategoryId"
+                                      class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="product-label">Ürün Açıklaması</label>
+                                <textarea asp-for="ProductDescription"
+                                          rows="4"
+                                          class="form-control product-input"></textarea>
+                                <span asp-validation-for="ProductDescription"
+                                      class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="product-label">
+                                    Ürün Fotoğrafı
+                                </label>
 
                                 <input type="hidden"
-                                       asp-for="ProductId" />
+                                       id="RemoveImage"
+                                       name="removeImage"
+                                       value="false" />
 
-                                <div asp-validation-summary="All"
-                                     class="text-danger mb-3"></div>
-
-                                <div class="row">
-
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="ProductName"
-                                               class="update-label">
-                                            Ürün Adı
-                                        </label>
-
-                                        <input asp-for="ProductName"
-                                               class="update-input"
-                                               required />
-
-                                        <span asp-validation-for="ProductName"
-                                              class="text-danger"></span>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="Price"
-                                               class="update-label">
-                                            Fiyat (₺)
-                                        </label>
-
-                                        <input asp-for="Price"
-                                               class="update-input"
-                                               required />
-
-                                        <span asp-validation-for="Price"
-                                              class="text-danger"></span>
-                                    </div>
-
-                                    <div class="col-md-12 mb-3">
-                                        <label asp-for="CategoryId"
-                                               class="update-label">
-                                            Kategori
-                                        </label>
-
-                                        <select asp-for="CategoryId"
-                                                asp-items="categories"
-                                                class="update-input"
-                                                required>
-                                            <option value="">
-                                                Kategori Seçiniz
-                                            </option>
-                                        </select>
-
-                                        <span asp-validation-for="CategoryId"
-                                              class="text-danger"></span>
-                                    </div>
-
-                                    <div class="col-md-12 mb-3">
-                                        <label asp-for="ProductDescription"
-                                               class="update-label">
-                                            Ürün Açıklaması
-                                        </label>
-
-                                        <textarea asp-for="ProductDescription"
-                                                  rows="4"
-                                                  class="update-input">
-                                            </textarea>
-
-                                        <span asp-validation-for="ProductDescription"
-                                              class="text-danger"></span>
-                                    </div>
-
-                                    <div class="col-md-12 mb-3">
-                                        <label asp-for="ImageUrl"
-                                               class="update-label">
-                                            Fotoğraf URL
-                                        </label>
-
-                                        <input asp-for="ImageUrl"
-                                               id="imageUrl"
-                                               class="update-input" />
-
-                                        <span asp-validation-for="ImageUrl"
-                                              class="text-danger"></span>
-
-                                        <img id="imagePreview"
-                                             src="@imageUrl"
-                                             class="preview-image"
-                                             alt="Ürün fotoğrafı"
-                                             style="display:none;"
-                                             onload="this.style.display='block'"
-                                             onerror="this.style.display='none'" />
-                                    </div>
-
+                                <div id="currentImageArea">
+                                    @if (!string.IsNullOrWhiteSpace(Model?.ImageUrl))
+                                    {
+                                        <img id="currentImage"
+                                             src="@Model.ImageUrl"
+                                             alt="Mevcut ürün fotoğrafı"
+                                             class="product-preview" />
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">
+                                            Bu ürünün mevcut fotoğrafı yok.
+                                        </p>
+                                    }
                                 </div>
 
-                                <hr />
+                                <div class="file-upload-area mt-3">
+                                    <label for="imageFile" class="product-label">
+                                        Başka Fotoğraf Seç
+                                    </label>
 
-                                <div class="d-flex gap-3 flex-wrap">
+                                    <input type="file"
+                                           id="imageFile"
+                                           name="imageFile"
+                                           accept=".jpg,.jpeg,.png,.webp" />
 
-                                    <button type="submit"
-                                            class="save-btn">
-                                        <i class="fas fa-save"></i>
-                                        Değişiklikleri Kaydet
+                                    <small class="d-block text-muted mt-2">
+                                        Yeni fotoğraf seçmezsen mevcut fotoğraf korunur.
+                                        Maksimum 5 MB.
+                                    </small>
+
+                                    <div class="text-danger mt-2">
+                                        @Html.ValidationMessage("imageFile")
+                                    </div>
+
+                                    <div>
+                                        <img id="imagePreview"
+                                             class="product-preview"
+                                             alt="Yeni fotoğraf önizleme"
+                                             style="display:none;" />
+                                    </div>
+
+                                    <button type="button"
+                                            id="deleteImageBtn"
+                                            class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                        Fotoğrafı Sil
                                     </button>
 
-                                    <a href="/Product/ProductList"
-                                       class="back-btn">
-                                        <i class="fas fa-arrow-left"></i>
-                                        Geri Dön
-                                    </a>
+                                    <button type="button"
+                                            id="restoreImageBtn"
+                                            class="btn btn-outline-secondary"
+                                            style="display:none;">
+                                        <i class="fas fa-undo"></i>
+                                        Geri Al
+                                    </button>
 
+                                    <p id="imageStatus"
+                                       class="text-muted mt-2"
+                                       aria-live="polite"></p>
                                 </div>
+                            </div>
 
-                            </form>
-                        }
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Değişiklikleri Kaydet
+                            </button>
 
+                            <a href="/Product/ProductList"
+                               class="btn btn-secondary">
+                                Geri Dön
+                            </a>
+
+                        </form>
                     </div>
                 </div>
             </div>
@@ -245,22 +225,74 @@
 </section>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const input = document.getElementById("imageUrl");
+    (function () {
+        const input = document.getElementById("imageFile");
         const preview = document.getElementById("imagePreview");
+        const currentArea = document.getElementById("currentImageArea");
+        const removeField = document.getElementById("RemoveImage");
+        const deleteBtn = document.getElementById("deleteImageBtn");
+        const restoreBtn = document.getElementById("restoreImageBtn");
+        const status = document.getElementById("imageStatus");
 
-        if (!input || !preview) return;
+        let objectUrl = null;
 
-        input.addEventListener("input", function () {
-            const url = this.value.trim();
-
-            preview.style.display = "none";
-
-            if (url) {
-                preview.src = url;
-            } else {
-                preview.removeAttribute("src");
+        function clearPreview() {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = null;
             }
+
+            preview.removeAttribute("src");
+            preview.style.display = "none";
+        }
+
+        input.addEventListener("change", function () {
+            const file = this.files && this.files[0];
+
+            if (!file)
+                return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Fotoğraf en fazla 5 MB olabilir.");
+                input.value = "";
+                return;
+            }
+
+            clearPreview();
+
+            objectUrl = URL.createObjectURL(file);
+            preview.src = objectUrl;
+            preview.style.display = "block";
+
+            currentArea.style.display = "none";
+            removeField.value = "false";
+            restoreBtn.style.display = "inline-block";
+
+            status.textContent =
+                "Yeni fotoğraf seçildi. Kaydettiğinizde eskisinin yerine kullanılacak.";
         });
-    });
+
+        deleteBtn.addEventListener("click", function () {
+            input.value = "";
+            clearPreview();
+
+            currentArea.style.display = "none";
+            removeField.value = "true";
+            restoreBtn.style.display = "inline-block";
+
+            status.textContent =
+                "Fotoğraf kaldırılacak. İşlemi tamamlamak için Kaydet'e basın.";
+        });
+
+        restoreBtn.addEventListener("click", function () {
+            input.value = "";
+            clearPreview();
+
+            currentArea.style.display = "block";
+            removeField.value = "false";
+            restoreBtn.style.display = "none";
+
+            status.textContent = "Mevcut fotoğraf korunacak.";
+        });
+    })();
 </script>
