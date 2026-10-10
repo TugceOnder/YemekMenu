@@ -1,39 +1,124 @@
-﻿@model CreateAboutDto
+﻿@model ApiProjeKampi.WebUI.Dtos.AboutDtos.CreateAboutDto
 
 @{
-    ViewData["Title"] = "CreateAbout";
+    ViewData["Title"] = "Hakkımızda Ekle";
     Layout = "~/Views/AdminLayout/Index.cshtml";
 }
+
+<style>
+    .about-upload {
+        background: #f8f9ff;
+        border: 2px dashed #667eea;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+        .about-upload input[type="file"] {
+            display: block !important;
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+    .about-preview {
+        max-width: 100%;
+        width: 260px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-top: 15px;
+    }
+</style>
 
 <section class="section">
     <div class="section-body">
         <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4>Hakkımda Alanı Ekleme Sayfası</h4>
+                        <h4>Hakkımızda Alanı Ekleme</h4>
                     </div>
+
                     <div class="card-body">
-                        <form method="post">
-                            <label>Başlık</label>
-                            <input type="text" asp-for="Title" class="form-control" />
-                            <br />
-                            <label>Rezervassyon Numarası</label>
-                            <input type="text" asp-for="ReservationNumber" class="form-control" />
-                            <br />
-                            <label>Görsel URL</label>
-                            <input type="text" asp-for="ImageUrl" class="form-control" />
-                            <br />
-                            <label>Video Kapak Görseli</label>
-                            <input type="text" asp-for="VideoCoverImageUrl" class="form-control" />
-                            <br />
-                            <label>Video Linki (Embed Olarak)</label>
-                            <input type="text" asp-for="VideoUrl" class="form-control" />
-                            <br />
-                            <label>Açıklama</label>
-                            <textarea class="form-control" rows="5" asp-for="Description"></textarea>
-                            <br />
-                            <button class="btn btn-primary">Hakkımda Alanı Oluştur</button>
+                        <form id="aboutForm"
+                              action="/About/CreateAbout"
+                              method="post"
+                              enctype="multipart/form-data"
+                              novalidate>
+
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="text-danger mb-3"></div>
+
+                            <div class="form-group">
+                                <label>Başlık</label>
+                                <input asp-for="Title"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Rezervasyon Numarası</label>
+                                <input asp-for="ReservationNumber"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Açıklama</label>
+                                <textarea asp-for="Description"
+                                          rows="5"
+                                          class="form-control"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Hakkımızda Görseli</label>
+
+                                <div class="about-upload">
+                                    <p class="text-muted">
+                                        Bilgisayardan veya telefondan fotoğraf seçin.
+                                    </p>
+
+                                    <input type="file"
+                                           id="imageFile"
+                                           name="imageFile"
+                                           accept=".jpg,.jpeg,.png,.webp" />
+
+                                    <small class="text-muted">
+                                        JPG, PNG veya WEBP. En fazla 5 MB.
+                                    </small>
+
+                                    <div class="text-danger mt-2">
+                                        @Html.ValidationMessage("imageFile")
+                                    </div>
+
+                                    <div>
+                                        <img id="imagePreview"
+                                             class="about-preview"
+                                             alt="Fotoğraf önizleme"
+                                             style="display:none;" />
+                                    </div>
+
+                                    <button type="button"
+                                            id="removeImageBtn"
+                                            class="btn btn-danger mt-3"
+                                            style="display:none;">
+                                        <i class="fas fa-trash"></i>
+                                        Seçilen Fotoğrafı Kaldır
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Hakkımızda Alanı Kaydet
+                            </button>
+
+                            <a href="/About/AboutList"
+                               class="btn btn-secondary">
+                                Geri Dön
+                            </a>
                         </form>
                     </div>
                 </div>
@@ -42,3 +127,89 @@
     </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    (function () {
+        const form = document.getElementById("aboutForm");
+        const input = document.getElementById("imageFile");
+        const preview = document.getElementById("imagePreview");
+        const removeBtn = document.getElementById("removeImageBtn");
+        let objectUrl = null;
+
+        function warning(message) {
+            if (typeof Swal !== "undefined") {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Eksik veya Hatalı Bilgi",
+                    text: message,
+                    confirmButtonText: "Tamam"
+                });
+            } else {
+                alert(message);
+            }
+        }
+
+        function clearImage() {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = null;
+            }
+
+            preview.removeAttribute("src");
+            preview.style.display = "none";
+            removeBtn.style.display = "none";
+        }
+
+        input.addEventListener("change", function () {
+            clearImage();
+
+            const file = input.files[0];
+            if (!file) return;
+
+            const extension = file.name.split(".").pop().toLowerCase();
+
+            if (!["jpg", "jpeg", "png", "webp"].includes(extension)) {
+                warning("Yalnızca JPG, PNG veya WEBP fotoğraf seçebilirsiniz.");
+                input.value = "";
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                warning("Fotoğraf en fazla 5 MB olabilir.");
+                input.value = "";
+                return;
+            }
+
+            objectUrl = URL.createObjectURL(file);
+            preview.src = objectUrl;
+            preview.style.display = "block";
+            removeBtn.style.display = "inline-block";
+        });
+
+        removeBtn.addEventListener("click", function () {
+            input.value = "";
+            clearImage();
+        });
+
+        form.addEventListener("submit", function (event) {
+            const title = document.getElementById("Title").value.trim();
+            const description =
+                document.getElementById("Description").value.trim();
+
+            let message = "";
+
+            if (!title)
+                message = "Lütfen başlık giriniz.";
+            else if (!description)
+                message = "Lütfen açıklama giriniz.";
+            else if (!input.files.length)
+                message = "Lütfen fotoğraf seçiniz.";
+
+            if (message) {
+                event.preventDefault();
+                warning(message);
+            }
+        });
+    })();
+</script>

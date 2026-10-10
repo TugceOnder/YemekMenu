@@ -1,37 +1,159 @@
-﻿@model GetFeatureByIdDto
+﻿@model ApiProjeKampi.WebUI.Dtos.FeatureDtos.GetFeatureByIdDto
 
 @{
     ViewData["Title"] = "UpdateFeature";
     Layout = "~/Views/AdminLayout/Index.cshtml";
 }
 
+<style>
+    .feature-upload-area {
+        padding: 20px;
+        border: 2px dashed #667eea;
+        border-radius: 12px;
+        background: #f8f9ff;
+    }
+
+        .feature-upload-area input[type="file"] {
+            display: block !important;
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+    .feature-preview {
+        width: 240px;
+        max-width: 100%;
+        height: 160px;
+        margin-top: 15px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+</style>
+
 <section class="section">
     <div class="section-body">
         <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
                         <h4>Öne Çıkan Alan Güncelleme Sayfası</h4>
                     </div>
+
                     <div class="card-body">
-                        <form method="post">
+                        <form id="featureForm"
+                              action="/Feature/UpdateFeature"
+                              method="post"
+                              enctype="multipart/form-data"
+                              novalidate>
+
+                            @Html.AntiForgeryToken()
+
                             <input type="hidden" asp-for="FeatureId" />
-                            <label>Başlık</label>
-                            <input type="text" asp-for="Title" class="form-control" />
-                            <br />
-                            <label>Alt Başlık</label>
-                            <input type="text" asp-for="SubTitle" class="form-control" />
-                            <br />
-                            <label>Açıklama</label>
-                            <input type="text" asp-for="Description" class="form-control" />
-                            <br />
-                            <label>Görsel URL</label>
-                            <input type="text" asp-for="ImageUrl" class="form-control" />
-                            <br />
-                            <label>Video URL (Embed Link)</label>
-                            <input type="text" asp-for="VideoUrl" class="form-control" />
-                            <br />
-                            <button class="btn btn-success">Öne Çıkan Alanı Güncelle</button>
+
+                            <input type="hidden"
+                                   id="RemoveImage"
+                                   name="removeImage"
+                                   value="false" />
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="text-danger mb-3"></div>
+
+                            <div class="form-group">
+                                <label>Başlık</label>
+                                <input asp-for="Title"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Alt Başlık</label>
+                                <input asp-for="SubTitle"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Açıklama</label>
+                                <textarea asp-for="Description"
+                                          rows="4"
+                                          class="form-control"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mevcut Görsel</label>
+
+                                <div id="currentImageArea">
+                                    @if (!string.IsNullOrWhiteSpace(Model?.ImageUrl))
+                                    {
+                                        <img src="@Model.ImageUrl"
+                                             class="feature-preview"
+                                             alt="Mevcut görsel" />
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">
+                                            Mevcut görsel bulunmuyor.
+                                        </p>
+                                    }
+                                </div>
+
+                                <div class="feature-upload-area mt-3">
+                                    <label for="imageFile">
+                                        Başka Fotoğraf Seç
+                                    </label>
+
+                                    <input type="file"
+                                           id="imageFile"
+                                           name="imageFile"
+                                           accept=".jpg,.jpeg,.png,.webp" />
+
+                                    <small class="text-muted">
+                                        JPG, PNG veya WEBP — maksimum 5 MB.
+                                        Yeni fotoğraf seçmezsen eskisi korunur.
+                                    </small>
+
+                                    <div class="text-danger mt-2">
+                                        @Html.ValidationMessage("imageFile")
+                                    </div>
+
+                                    <img id="imagePreview"
+                                         class="feature-preview"
+                                         alt="Yeni görsel önizleme"
+                                         style="display:none;" />
+
+                                    <div class="mt-3">
+                                        <button type="button"
+                                                id="deleteImageBtn"
+                                                class="btn btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                            Fotoğrafı Sil
+                                        </button>
+
+                                        <button type="button"
+                                                id="restoreImageBtn"
+                                                class="btn btn-outline-secondary"
+                                                style="display:none;">
+                                            <i class="fas fa-undo"></i>
+                                            Geri Al
+                                        </button>
+                                    </div>
+
+                                    <p id="imageStatus"
+                                       class="text-muted mt-2"
+                                       aria-live="polite"></p>
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-success">
+                                <i class="fas fa-save"></i>
+                                Öne Çıkan Alanı Güncelle
+                            </button>
+
+                            <a href="/Feature/FeatureList"
+                               class="btn btn-secondary">
+                                Geri Dön
+                            </a>
                         </form>
                     </div>
                 </div>
@@ -40,4 +162,124 @@
     </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+    (function () {
+        const form = document.getElementById("featureForm");
+        const input = document.getElementById("imageFile");
+        const preview = document.getElementById("imagePreview");
+        const currentArea = document.getElementById("currentImageArea");
+        const removeField = document.getElementById("RemoveImage");
+        const deleteBtn = document.getElementById("deleteImageBtn");
+        const restoreBtn = document.getElementById("restoreImageBtn");
+        const status = document.getElementById("imageStatus");
+
+        const hadImage = @Json.Serialize(
+                        !string.IsNullOrWhiteSpace(Model?.ImageUrl)
+                );
+
+        let objectUrl = null;
+
+        function showAlert(message) {
+            return Swal.fire({
+                icon: "warning",
+                title: "Eksik veya Hatalı Bilgi",
+                text: message,
+                confirmButtonText: "Tamam",
+                confirmButtonColor: "#667eea"
+            });
+        }
+
+        function clearPreview() {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = null;
+            }
+
+            preview.removeAttribute("src");
+            preview.style.display = "none";
+        }
+
+        input.addEventListener("change", function () {
+            const file = input.files[0];
+            if (!file) return;
+
+            const extension = file.name.split(".").pop().toLowerCase();
+
+            if (!["jpg", "jpeg", "png", "webp"].includes(extension)) {
+                input.value = "";
+                showAlert("Yalnızca JPG, PNG veya WEBP fotoğraf seçebilirsiniz.");
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                input.value = "";
+                showAlert("Fotoğraf en fazla 5 MB olabilir.");
+                return;
+            }
+
+            clearPreview();
+
+            objectUrl = URL.createObjectURL(file);
+            preview.src = objectUrl;
+            preview.style.display = "block";
+
+            currentArea.style.display = "none";
+            removeField.value = "false";
+            restoreBtn.style.display = "inline-block";
+
+            status.textContent =
+                "Yeni fotoğraf seçildi. Güncellediğinizde kaydedilecek.";
+        });
+
+        deleteBtn.addEventListener("click", function () {
+            input.value = "";
+            clearPreview();
+
+            currentArea.style.display = "none";
+            removeField.value = "true";
+            restoreBtn.style.display = "inline-block";
+
+            status.textContent =
+                "Fotoğraf kaldırıldı. Kaydetmeden önce yeni fotoğraf seçmelisiniz.";
+        });
+
+        restoreBtn.addEventListener("click", function () {
+            input.value = "";
+            clearPreview();
+
+            currentArea.style.display = "block";
+            removeField.value = "false";
+            restoreBtn.style.display = "none";
+
+            status.textContent = "Mevcut fotoğraf korunacak.";
+        });
+
+        form.addEventListener("submit", function (event) {
+            const title = document.getElementById("Title").value.trim();
+            const subTitle = document.getElementById("SubTitle").value.trim();
+            const description = document.getElementById("Description").value.trim();
+
+            const hasNewFile = !!input.files[0];
+            const hasExistingImage =
+                hadImage && removeField.value !== "true";
+
+            let message = "";
+
+            if (!title)
+                message = "Başlık alanını doldurunuz.";
+            else if (!subTitle)
+                message = "Alt başlık alanını doldurunuz.";
+            else if (!description)
+                message = "Açıklama alanını doldurunuz.";
+            else if (!hasNewFile && !hasExistingImage)
+                message = "Fotoğraf boş bırakılamaz. Lütfen fotoğraf seçiniz veya Geri Al'a basınız.";
+
+            if (message) {
+                event.preventDefault();
+                showAlert(message);
+            }
+        });
+    })();
+</script>

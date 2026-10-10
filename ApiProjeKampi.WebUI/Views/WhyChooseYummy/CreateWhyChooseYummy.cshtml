@@ -1,30 +1,114 @@
-﻿@model CreateWhyChooseYummyDto
+﻿@model ApiProjeKampi.WebUI.Dtos.WhyChooseYummyDtos.CreateWhyChooseYummyDto
 
 @{
-    ViewData["Title"] = "CreateWhyChooseYummy";
+    ViewData["Title"] = "Yeni Alan Ekle";
     Layout = "~/Views/AdminLayout/Index.cshtml";
 }
+
+<style>
+    .why-upload {
+        padding: 20px;
+        border: 2px dashed #667eea;
+        background: #f8f9ff;
+        border-radius: 12px;
+    }
+
+        .why-upload input[type=file] {
+            display: block !important;
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+    .why-preview {
+        display: none;
+        width: 160px;
+        height: 160px;
+        object-fit: contain;
+        border-radius: 12px;
+        margin-top: 15px;
+    }
+</style>
 
 <section class="section">
     <div class="section-body">
         <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4>Yeni Neden Bizi Seçmelisiniz Ekleme Sayfası</h4>
+                        <h4>Yeni Neden Bizi Seçmelisiniz Alanı Ekle</h4>
                     </div>
+
                     <div class="card-body">
-                        <form method="post">
-                            <label>Başlık</label>
-                            <input type="text" asp-for="Title" class="form-control" />
-                            <br />
-                            <label>Açıklama</label>
-                            <input type="text" asp-for="Description" class="form-control" />
-                            <br />
-                            <label>İkon Url</label>
-                            <input type="text" asp-for="IconUrl" class="form-control" />
-                            <br />
-                            <button class="btn btn-primary">Alanı Oluştur</button>
+                        <form id="whyForm"
+                              action="/WhyChooseYummy/CreateWhyChooseYummy"
+                              method="post"
+                              enctype="multipart/form-data"
+                              novalidate>
+
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="All"
+                                 class="text-danger"></div>
+
+                            <div class="form-group">
+                                <label>Başlık</label>
+                                <input asp-for="Title"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Açıklama</label>
+                                <textarea asp-for="Description"
+                                          rows="4"
+                                          class="form-control"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Görsel</label>
+
+                                <div class="why-upload">
+                                    <p class="text-muted">
+                                        Bilgisayardan veya telefon galerisinden
+                                        görsel seçebilirsiniz.
+                                    </p>
+
+                                    <input type="file"
+                                           id="imageFile"
+                                           name="imageFile"
+                                           accept=".jpg,.jpeg,.png,.webp" />
+
+                                    <small class="text-muted">
+                                        JPG, PNG veya WEBP — En fazla 5 MB
+                                    </small>
+
+                                    <div>
+                                        <img id="imagePreview"
+                                             class="why-preview"
+                                             alt="Görsel önizleme" />
+                                    </div>
+
+                                    <button type="button"
+                                            id="removeImageBtn"
+                                            class="btn btn-danger mt-3"
+                                            style="display:none;">
+                                        <i class="fas fa-trash"></i>
+                                        Seçilen Görseli Kaldır
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Alanı Oluştur
+                            </button>
+
+                            <a href="/WhyChooseYummy/WhyChooseYummyList"
+                               class="btn btn-secondary">
+                                Geri Dön
+                            </a>
                         </form>
                     </div>
                 </div>
@@ -33,3 +117,90 @@
     </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    (function () {
+        const form = document.getElementById("whyForm");
+        const input = document.getElementById("imageFile");
+        const preview = document.getElementById("imagePreview");
+        const removeBtn = document.getElementById("removeImageBtn");
+
+        let previewUrl = null;
+
+        function warn(message) {
+            if (typeof Swal !== "undefined") {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Eksik veya Hatalı Bilgi",
+                    text: message,
+                    confirmButtonText: "Tamam"
+                });
+            } else {
+                alert(message);
+            }
+        }
+
+        function clearPreview() {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+            preview.removeAttribute("src");
+            preview.style.display = "none";
+            removeBtn.style.display = "none";
+        }
+
+        function validFile(file) {
+            const extension = file.name.split(".").pop().toLowerCase();
+
+            if (!["jpg", "jpeg", "png", "webp"].includes(extension)) {
+                warn("JPG, PNG veya WEBP görsel seçiniz.");
+                return false;
+            }
+            if (file.size === 0 || file.size > 5 * 1024 * 1024) {
+                warn("Görsel boş olamaz ve 5 MB sınırını aşamaz.");
+                return false;
+            }
+            return true;
+        }
+
+        input.addEventListener("change", function () {
+            clearPreview();
+
+            const file = input.files[0];
+            if (!file) return;
+
+            if (!validFile(file)) {
+                input.value = "";
+                return;
+            }
+
+            previewUrl = URL.createObjectURL(file);
+            preview.src = previewUrl;
+            preview.style.display = "block";
+            removeBtn.style.display = "inline-block";
+        });
+
+        removeBtn.addEventListener("click", function () {
+            input.value = "";
+            clearPreview();
+        });
+
+        form.addEventListener("submit", function (e) {
+            let message = "";
+
+            if (!document.getElementById("Title").value.trim())
+                message = "Başlık boş bırakılamaz.";
+            else if (!document.getElementById("Description").value.trim())
+                message = "Açıklama boş bırakılamaz.";
+            else if (!input.files.length)
+                message = "Lütfen bir görsel seçiniz.";
+
+            if (message) {
+                e.preventDefault();
+                warn(message);
+            }
+        });
+    })();
+</script>

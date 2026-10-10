@@ -1,38 +1,218 @@
 ﻿@model List<ApiProjeKampi.WebUI.Dtos.ServiceDtos.ResultServiceDto>
 
+<style>
+    /* SOL TARAFTAKİ NEDEN YUMMY KUTUSU */
+    #why-us .why-box {
+        background: #ce1212;
+        color: #fff;
+        height: 100%;
+        padding: 30px;
+        border-radius: 12px;
+    }
+
+        #why-us .why-box h3,
+        #why-us .why-box p {
+            color: #fff !important;
+        }
+
+    /* SAĞ TARAFTAKİ HİZMET KARTLARI */
+    #why-us .service-red-card {
+        background: #ce1212 !important;
+        color: #fff !important;
+        border-radius: 12px;
+        padding: 30px 20px;
+        width: 100%;
+        min-height: 300px;
+        height: 100%;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+    }
+
+        #why-us .service-red-card:hover {
+            transform: translateY(-5px);
+        }
+
+        #why-us .service-red-card h4,
+        #why-us .service-red-card p {
+            color: #fff !important;
+        }
+
+        #why-us .service-red-card h4 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        #why-us .service-red-card p {
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* ESKİ CSS İKONLARI */
+        #why-us .service-red-card .service-icon {
+            font-size: 34px;
+            color: #fff !important;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            width: 85px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        /* GALERİDEN YÜKLENEN GÖRSELLER */
+        #why-us .service-red-card .service-image {
+            width: 100px;
+            height: 100px;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            padding: 10px;
+            background: rgba(255,255,255,0.18);
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+    /* REZERVASYON BUTONU */
+    #why-us .why-box .more-btn {
+        background: rgba(255,255,255,0.18);
+        color: #fff;
+        border-radius: 30px;
+        padding: 12px 25px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        #why-us .why-box .more-btn:hover {
+            background: #fff;
+            color: #ce1212;
+        }
+</style>
+
 <section id="why-us" class="why-us section light-background">
 
     <div class="container">
 
-        <div class="row gy-4">
+        <div class="row gy-4 align-items-stretch">
 
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <!-- SOL: NEDEN YUMMY -->
+            <div class="col-lg-4"
+                 data-aos="fade-up"
+                 data-aos-delay="100">
+
                 <div class="why-box">
+
                     <h3>Neden Yummy?</h3>
+
                     <p>
-                        Yummy'de sadece yemek değil, bir deneyim sunuyoruz. Doğal ve katkısız malzemelerle hazırladığımız menülerimiz, hijyenik koşullarda servis edilir. Herkesin damak zevkine uygun seçeneklerimizle kendinizi özel hissedin. Çünkü biz her yemeği bir sanat eseri gibi hazırlarız.
+                        Yummy'de sadece yemek değil, bir deneyim
+                        sunuyoruz. Doğal ve katkısız malzemelerle
+                        hazırladığımız menülerimiz, hijyenik
+                        koşullarda servis edilir. Herkesin damak
+                        zevkine uygun seçeneklerimizle kendinizi
+                        özel hissedin. Çünkü biz her yemeği
+                        bir sanat eseri gibi hazırlarız.
                     </p>
+
                     <div class="text-center">
-                        <a href="#contact" class="more-btn"><span>Rezervasyon YApın</span> <i class="bi bi-chevron-right"></i></a>
+
+                        <a href="#contact" class="more-btn">
+
+                            <span>Rezervasyon Yapın</span>
+
+                            <i class="bi bi-chevron-right"></i>
+
+                        </a>
+
                     </div>
-                </div>
-            </div><!-- End Why Box -->
 
-            <div class="col-lg-8 d-flex align-items-stretch">
-                <div class="row gy-4" data-aos="fade-up" data-aos-delay="200">
-
-                    @foreach (var item in Model)
-                    {
-                        <div class="col-xl-4">
-                            <div class="icon-box d-flex flex-column justify-content-center align-items-center">
-                                <i class="@item.IconUrl"></i>
-                                <h4>@item.Title</h4>
-                                <p>@item.Description</p>
-                            </div>
-                        </div>
-                    }
                 </div>
             </div>
+
+            <!-- SAĞ: HİZMET KARTLARI -->
+            <div class="col-lg-8">
+
+                <div class="row gy-4 h-100"
+                     data-aos="fade-up"
+                     data-aos-delay="200">
+
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <div class="col-12 col-md-6 col-xl-4 d-flex">
+
+                                <div class="icon-box service-red-card
+                                                    d-flex flex-column
+                                                    justify-content-center
+                                                    align-items-center">
+
+                                    @* GÖRSEL VE İKON GÖSTERME ALANI *@
+
+                                    @if (!string.IsNullOrWhiteSpace(item.IconUrl))
+                                    {
+                                        var iconValue = item.IconUrl.Trim();
+
+                                        var isImage =
+                                        iconValue.StartsWith("/") ||
+                                        iconValue.StartsWith(
+                                        "https://",
+                                        StringComparison.OrdinalIgnoreCase) ||
+                                        iconValue.StartsWith(
+                                        "http://",
+                                        StringComparison.OrdinalIgnoreCase);
+
+                                        if (isImage)
+                                        {
+                                            <!-- YÜKLENEN GÖRSEL -->
+                                            <img src="@iconValue"
+                                                 alt="@item.Title"
+                                                 class="service-image"
+                                                 loading="lazy" />
+                                        }
+                                        else
+                                        {
+                                            <!-- ESKİ İKON -->
+                                            <i class="@iconValue service-icon"></i>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <!-- GÖRSEL YOKSA VARSAYILAN İKON -->
+                                        <i class="bi bi-image service-icon"></i>
+                                    }
+
+                                    <!-- HİZMET BAŞLIĞI -->
+                                    <h4>@item.Title</h4>
+
+                                    <!-- HİZMET AÇIKLAMASI -->
+                                    <p>@item.Description</p>
+
+                                </div>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center">
+                            <p class="text-muted">
+                                Henüz hizmet eklenmemiş.
+                            </p>
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
         </div>
+
     </div>
+
 </section>

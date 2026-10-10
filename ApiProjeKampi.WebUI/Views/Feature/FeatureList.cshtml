@@ -1,262 +1,255 @@
-﻿@model List<ResultFeatureDto>
+﻿@model List<ApiProjeKampi.WebUI.Dtos.FeatureDtos.ResultFeatureDto>
+
 @{
     ViewData["Title"] = "FeatureList";
     Layout = "~/Views/AdminLayout/Index.cshtml";
     int count = 0;
+    var features = Model ?? new List<ApiProjeKampi.WebUI.Dtos.FeatureDtos.ResultFeatureDto>();
 }
+<link rel="stylesheet"
+      href="~/css/PartialStyle.css"
+      asp-append-version="true" />
 
-<style>
-    .modern-card {
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-        border: none;
-    }
-
-    .modern-table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-        .modern-table thead th {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
-            color: #667eea;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            padding: 1rem;
-            border: none;
-            border-bottom: 2px solid #667eea;
-        }
-
-            .modern-table thead th:first-child {
-                border-top-left-radius: 10px;
-            }
-
-            .modern-table thead th:last-child {
-                border-top-right-radius: 10px;
-            }
-
-        .modern-table tbody tr {
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-            .modern-table tbody tr:hover {
-                background-color: #f8f9ff;
-                transform: scale(1.01);
-                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-            }
-
-        .modern-table tbody td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
-
-    .feature-icon {
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.2rem;
-    }
-
-    .title-badge {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 0.4rem 0.9rem;
-        border-radius: 15px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        display: inline-block;
-    }
-
-    .subtitle-text {
-        color: #666;
-        font-size: 0.9rem;
-        font-style: italic;
-    }
-
-    .description-text {
-        color: #555;
-        font-size: 0.9rem;
-        line-height: 1.5;
-        max-width: 400px;
-    }
-
-    .modern-btn {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-        .modern-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-    .btn-edit {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .btn-delete {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-    }
-
-    .btn-view {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-    }
-
-    .btn-create {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
-
-    .btn-disabled {
-        background: linear-gradient(135deg, #d7d7d7 0%, #a8a8a8 100%);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-
-    .alert-info-custom {
-        background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
-        border: 2px solid #4dd0e1;
-        border-radius: 10px;
-        padding: 1rem;
-        color: #00838f;
-        margin-top: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-</style>
 
 <section class="section">
     <div class="section-body">
         <div class="row">
             <div class="col-12">
                 <div class="card modern-card">
-                    <div class="card-header" style="background: white; border-bottom: 2px solid #f0f0f0; border-radius: 15px 15px 0 0;">
-                        <h4 style="color: #667eea; font-weight: 700; margin: 0;">
-                            <i class="fas fa-star" style="margin-right: 10px;"></i>
+
+                    <!-- KART BAŞLIĞI -->
+                    <div class="card-header"
+                         style="background:white;
+                                border-bottom:2px solid #f0f0f0;
+                                border-radius:15px 15px 0 0;">
+
+                        <h4 style="color:#667eea; font-weight:700; margin:0;">
+                            <i class="fas fa-star"
+                               style="margin-right:10px;"></i>
                             Öne Çıkan Alan İşlemleri
                         </h4>
+
                         <div class="card-header-action">
-                            @if (Model.Count == 1)
+
+                            @if (features.Count >= 1)
                             {
-                                <button class="modern-btn btn-disabled" disabled>
+                                <button class="modern-btn btn-disabled"
+                                        disabled>
                                     <i class="fas fa-check-circle"></i>
                                     Feature Mevcut
                                 </button>
                             }
                             else
                             {
-                                <a href="/Feature/CreateFeature/" class="modern-btn btn-create">
+                                <a href="/Feature/CreateFeature/"
+                                   class="modern-btn btn-create">
                                     <i class="fas fa-plus"></i>
                                     Yeni Feature Ekle
                                 </a>
                             }
+
                         </div>
                     </div>
-                    <div class="card-body" style="padding: 0;">
+
+                    <!-- TABLO -->
+                    <div class="card-body" style="padding:0;">
                         <div class="table-responsive">
+
                             <table class="table modern-table">
+
                                 <thead>
                                     <tr>
-                                        <th scope="col" style="width: 5%;">#</th>
-                                        <th scope="col" style="width: 5%;"></th>
-                                        <th scope="col" style="width: 15%;">Başlık</th>
-                                        <th scope="col" style="width: 15%;">Alt Başlık</th>
-                                        <th scope="col" style="width: 35%;">Açıklama</th>
-                                        <th scope="col" style="width: 25%;" class="text-center">İşlemler</th>
+                                        <th style="width:5%;">#</th>
+                                        <th style="width:5%;"></th>
+                                        <th style="width:15%;">Başlık</th>
+                                        <th style="width:15%;">Alt Başlık</th>
+                                        <th style="width:35%;">Açıklama</th>
+                                        <th style="width:25%;"
+                                            class="text-center">
+                                            İşlemler
+                                        </th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    @foreach (var item in Model)
+                                    @foreach (var item in features)
                                     {
                                         count++;
+
                                         <tr>
-                                            <td><strong>@count</strong></td>
+                                            <td>
+                                                <strong>@count</strong>
+                                            </td>
+
                                             <td>
                                                 <div class="feature-icon">
                                                     <i class="fas fa-star"></i>
                                                 </div>
                                             </td>
+
                                             <td>
                                                 <span class="title-badge">
-                                                    <i class="fas fa-heading"></i> @item.Title
+                                                    <i class="fas fa-heading"></i>
+                                                    @item.Title
                                                 </span>
                                             </td>
+
                                             <td>
                                                 <span class="subtitle-text">
-                                                    <i class="fas fa-quote-left"></i> @item.SubTitle
+                                                    <i class="fas fa-quote-left"></i>
+                                                    @item.SubTitle
                                                 </span>
                                             </td>
+
                                             <td>
                                                 <div class="description-text">
-                                                    <i class="fas fa-align-left"></i> @item.Description
+                                                    <i class="fas fa-align-left"></i>
+                                                    @item.Description
                                                 </div>
                                             </td>
+
                                             <td class="text-center">
-                                                <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                                                    <a href="/Feature/ViewFeature/@item.FeatureId/" class="modern-btn btn-view" title="Görüntüle">
+                                                <div class="feature-actions">
+
+                                                    <!-- GÖRÜNTÜLE -->
+                                                    <button type="button"
+                                                            class="modern-btn btn-view js-view-feature"
+                                                            data-id="@item.FeatureId"
+                                                            data-title="@item.Title"
+                                                            data-subtitle="@item.SubTitle"
+                                                            data-description="@item.Description"
+                                                            title="Görüntüle">
+
                                                         <i class="fas fa-eye"></i>
                                                         Görüntüle
-                                                    </a>
-                                                    <a href="/Feature/UpdateFeature/@item.FeatureId/" class="modern-btn btn-edit" title="Düzenle">
+                                                    </button>
+
+                                                    <!-- DÜZENLE -->
+                                                    <a href="/Feature/UpdateFeature/@item.FeatureId/"
+                                                       class="modern-btn btn-edit"
+                                                       title="Düzenle">
+
                                                         <i class="fas fa-edit"></i>
                                                         Düzenle
                                                     </a>
-                                                    <a href="/Feature/DeleteFeature/@item.FeatureId/" class="modern-btn btn-delete" title="Sil" onclick="return confirm('Bu feature\'ı silmek istediğinize emin misiniz?');">
+
+                                                    <!-- SİL -->
+                                                    <a href="/Feature/DeleteFeature/@item.FeatureId/"
+                                                       class="modern-btn btn-delete"
+                                                       onclick="return confirm('Bu kaydı silmek istediğinize emin misiniz?');"
+                                                       title="Sil">
+
                                                         <i class="fas fa-trash-alt"></i>
                                                         Sil
                                                     </a>
+
                                                 </div>
                                             </td>
                                         </tr>
                                     }
                                 </tbody>
+
                             </table>
+
                         </div>
 
-                        @if (Model.Count == 1)
+                        @if (features.Count == 1)
                         {
-                            <div style="padding: 1rem;">
+                            <div style="padding:1rem;">
                                 <div class="alert-info-custom">
-                                    <i class="fas fa-info-circle" style="font-size: 1.5rem;"></i>
+                                    <i class="fas fa-info-circle"
+                                       style="font-size:1.5rem;"></i>
+
                                     <div>
-                                        <strong>Bilgilendirme:</strong> Sistemde zaten bir feature kaydı bulunmaktadır. Yeni feature eklemek için önce mevcut kaydı silmeniz gerekmektedir.
+                                        <strong>Bilgilendirme:</strong>
+                                        Sistemde zaten bir feature kaydı
+                                        bulunmaktadır. Yeni feature eklemek
+                                        için önce mevcut kaydı silmeniz
+                                        gerekmektedir.
                                     </div>
                                 </div>
                             </div>
                         }
                     </div>
-                    <div class="card-footer" style="background: white; border-top: 2px solid #f0f0f0;">
-                        <div style="color: #999; font-size: 0.875rem;">
+
+                    <!-- ALT BİLGİ -->
+                    <div class="card-footer"
+                         style="background:white;
+                                border-top:2px solid #f0f0f0;">
+
+                        <div style="color:#999; font-size:0.875rem;">
                             <i class="fas fa-info-circle"></i>
-                            Toplam <strong style="color: #667eea;">@Model.Count</strong> feature kaydı listelendi
+                            Toplam
+                            <strong style="color:#667eea;">
+                                @features.Count
+                            </strong>
+                            feature kaydı listelendi.
                         </div>
+
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // GÖRÜNTÜLE BUTONU - SWEETALERT DETAY PENCERESİ
+
+    document.querySelectorAll(".js-view-feature").forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            const title = this.dataset.title || "";
+            const subtitle = this.dataset.subtitle || "";
+            const description = this.dataset.description || "";
+
+            // Güvenli şekilde HTML elemanları oluştur
+            const container = document.createElement("div");
+            container.className = "feature-detail";
+
+            function addDetail(label, value) {
+                const row = document.createElement("div");
+                row.className = "feature-detail-row";
+
+                const labelElement = document.createElement("span");
+                labelElement.className = "feature-detail-label";
+                labelElement.textContent = label;
+
+                const valueElement = document.createElement("p");
+                valueElement.className = "feature-detail-value";
+                valueElement.textContent = value || "Belirtilmemiş";
+
+                row.appendChild(labelElement);
+                row.appendChild(valueElement);
+                container.appendChild(row);
+            }
+
+            addDetail("Başlık", title);
+            addDetail("Alt Başlık", subtitle);
+            addDetail("Açıklama", description);
+
+            if (typeof Swal !== "undefined") {
+                Swal.fire({
+                    title: "Öne Çıkan Alan Detayları",
+                    html: container,
+                    icon: "info",
+                    width: 650,
+                    confirmButtonText: "Kapat",
+                    confirmButtonColor: "#667eea"
+                });
+            } else {
+                alert(
+                    "Başlık: " + title + "\n\n" +
+                    "Alt Başlık: " + subtitle + "\n\n" +
+                    "Açıklama: " + description
+                );
+            }
+
+        });
+
+    });
+</script>

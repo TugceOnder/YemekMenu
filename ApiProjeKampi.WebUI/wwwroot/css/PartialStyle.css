@@ -602,5 +602,634 @@
 .sortable-chosen {
     background: #f8f9ff !important;
 }
+/* Sürükle bırak */
+.drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #667eea;
+    font-size: 18px;
+    margin-right: 10px;
+    cursor: grab;
+    padding: 5px;
+}
 
+    .drag-handle:active {
+        cursor: grabbing;
+    }
 
+.sortable-ghost {
+    opacity: 0.4;
+    background: #e8ecff !important;
+}
+
+.sortable-chosen {
+    background: #f8f9ff !important;
+}
+
+/* Tablo */
+.modern-table {
+    width: 100%;
+    min-width: 1150px;
+}
+
+    .modern-table thead th {
+        white-space: nowrap;
+    }
+
+    .modern-table tbody td {
+        vertical-align: middle;
+    }
+
+/* İşlem butonları */
+.product-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+    .product-actions .modern-btn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        gap: 6px;
+        padding: 9px 12px;
+        font-size: 13px;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+
+.product-action-cell {
+    min-width: 355px;
+    white-space: nowrap;
+}
+
+#orderMessage:not(:empty) {
+    margin-bottom: 15px;
+}
+.modern-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: none;
+}
+
+.modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .modern-table thead th {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        color: #667eea;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+        border-bottom: 2px solid #667eea;
+    }
+
+        .modern-table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .modern-table thead th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .modern-table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+
+    .modern-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+.feature-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.title-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.4rem 0.9rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.subtitle-text {
+    color: #666;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.description-text {
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 400px;
+}
+
+.modern-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+    .modern-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: white;
+    }
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.btn-create {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.btn-disabled {
+    background: linear-gradient(135deg, #d7d7d7 0%, #a8a8a8 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.alert-info-custom {
+    background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+    border: 2px solid #4dd0e1;
+    border-radius: 10px;
+    padding: 1rem;
+    color: #00838f;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.feature-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* SWEETALERT DETAY PENCERESİ */
+.feature-detail {
+    text-align: left;
+}
+
+.feature-detail-image {
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    background: #f8f9fa;
+}
+
+.feature-detail-row {
+    background: #f8f9ff;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+}
+
+.feature-detail-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 5px;
+}
+
+.feature-detail-value {
+    color: #333;
+    font-size: 15px;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 768px) {
+    .feature-actions {
+        flex-wrap: wrap;
+    }
+
+    .modern-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
+.about-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+    .about-actions .modern-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+        .about-actions .modern-btn:hover {
+            color: white;
+        }
+
+.about-action-cell {
+    min-width: 340px;
+}
+
+/* SWEETALERT DETAY PENCERESİ */
+.about-detail {
+    text-align: left;
+}
+
+.about-detail-row {
+    background: #f8f9ff;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+}
+
+.about-detail-label {
+    display: block;
+    color: #667eea;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.about-detail-value {
+    margin: 0;
+    color: #333;
+    font-size: 15px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.about-detail-image {
+    width: 100%;
+    max-height: 280px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #f8f9fa;
+    margin-bottom: 18px;
+}
+
+@media (max-width: 768px) {
+    .about-actions {
+        flex-wrap: wrap;
+    }
+}
+/* İŞLEM BUTONLARI */
+.why-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+    .why-actions .modern-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        white-space: nowrap;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .why-actions .modern-btn:hover {
+            color: white;
+        }
+
+.why-action-cell {
+    min-width: 340px;
+}
+
+/* SWEETALERT DETAY PENCERESİ */
+.swal2-popup.why-popup {
+    max-width: 95vw;
+    border-radius: 15px;
+}
+
+.why-detail {
+    text-align: left;
+}
+
+/* GÖRSEL ARTIK KÜÇÜK */
+.swal2-popup .why-detail-image {
+    width: 120px !important;
+    height: 120px !important;
+    max-width: 120px !important;
+    max-height: 120px !important;
+    object-fit: contain !important;
+    display: block !important;
+    margin: 0 auto 15px !important;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+/* ESKİ CSS İKONLARI */
+.why-detail-icon {
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    font-size: 45px;
+    color: #667eea;
+}
+
+/* DETAY SATIRLARI */
+.why-detail-row {
+    background: #f8f9ff;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+}
+
+.why-detail-label {
+    display: block;
+    color: #667eea;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.why-detail-value {
+    color: #333;
+    font-size: 15px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .why-actions {
+        flex-wrap: wrap;
+    }
+
+    .why-action-cell {
+        min-width: 280px;
+    }
+}
+.modern-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: none;
+}
+
+.modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .modern-table thead th {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        color: #667eea;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .modern-table tbody tr {
+        transition: background-color 0.3s ease;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .modern-table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+
+    .modern-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+.customer-number {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.customer-name {
+    color: #333;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.customer-title {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.comment-box {
+    background: #fffbf0;
+    border-left: 4px solid #ffa726;
+    padding: 0.8rem;
+    border-radius: 8px;
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    font-style: italic;
+    max-width: 500px;
+    overflow-wrap: anywhere;
+}
+
+.rating-stars {
+    color: #ffa726;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+}
+
+.modern-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+    .modern-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: white;
+    }
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+.btn-create {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.testimonial-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.testimonial-action-cell {
+    min-width: 340px;
+}
+
+/* SWEETALERT */
+.swal2-popup.testimonial-popup {
+    max-width: 95vw;
+    border-radius: 15px;
+}
+
+.testimonial-detail {
+    text-align: left;
+}
+
+/* KÜÇÜK MÜŞTERİ FOTOĞRAFI */
+.swal2-popup .testimonial-detail-image {
+    width: 120px !important;
+    height: 120px !important;
+    max-width: 120px !important;
+    max-height: 120px !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 auto 15px !important;
+    border-radius: 50%;
+    border: 3px solid #e8ecff;
+}
+
+.testimonial-detail-row {
+    background: #f8f9ff;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+}
+
+.testimonial-detail-label {
+    display: block;
+    color: #667eea;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.testimonial-detail-value {
+    color: #333;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+@@media (max-width: 768px) {
+    .testimonial-actions {
+        flex-wrap: wrap;
+    }
+
+    .testimonial-action-cell {
+        min-width: 280px;
+    }
+}
