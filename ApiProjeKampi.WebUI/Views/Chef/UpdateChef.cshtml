@@ -9,33 +9,146 @@
     <div class="section-body">
         <div class="row">
             <div class="col-12 col-md-12 col-lg-12">
+
                 <div class="card">
                     <div class="card-header">
                         <h4>Şef Güncelleme Sayfası</h4>
                     </div>
+
                     <div class="card-body">
-                        <form method="post">
+
+                        <form asp-controller="Chef"
+                              asp-action="UpdateChef"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="All"
+                                 class="text-danger mb-3"></div>
+
                             <input type="hidden" asp-for="ChefId" />
+                            <input type="hidden" asp-for="ImageUrl" />
+
                             <label>Şef Adı Soyadı</label>
-                            <input type="text" asp-for="NameSurname" class="form-control" />
+                            <input asp-for="NameSurname"
+                                   class="form-control"
+                                   required />
                             <br />
+
                             <label>Şef Unvan/Başlık</label>
-                            <input type="text" asp-for="Title" class="form-control" />
+                            <input asp-for="Title"
+                                   class="form-control"
+                                   required />
                             <br />
+
                             <label>Açıklama Bilgisi</label>
-                            <input type="text" asp-for="Description" class="form-control" />
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      rows="4"></textarea>
                             <br />
-                            <label>Şef Görsel URL</label>
-                            <input type="text" asp-for="ImageUrl" class="form-control" />
-                            <br />
-                            <button class="btn btn-primary">Şefi Kaydet</button>
+
+                            <label>Mevcut Şef Fotoğrafı</label>
+
+                            <div class="mb-3">
+                                @if (!string.IsNullOrWhiteSpace(Model?.ImageUrl))
+                                {
+                                    <img src="@Model.ImageUrl"
+                                         alt="Mevcut Şef Fotoğrafı"
+                                         style="width:180px;
+                                                    height:180px;
+                                                    object-fit:cover;
+                                                    border-radius:10px;" />
+                                }
+                                else
+                                {
+                                    <p class="text-muted">
+                                        Mevcut fotoğraf bulunmuyor.
+                                    </p>
+                                }
+                            </div>
+
+                            <label>Yeni Fotoğraf Seç</label>
+                            <input type="file"
+                                   id="chefImage"
+                                   name="imageFile"
+                                   class="form-control"
+                                   accept="image/jpeg,image/png,image/webp" />
+
+                            <small class="form-text text-muted">
+                                Fotoğraf değiştirmek istemiyorsanız
+                                bu alanı boş bırakabilirsiniz.
+                            </small>
+
+                            <div class="mt-3">
+                                <img id="chefPreview"
+                                     alt="Yeni Şef Fotoğrafı"
+                                     style="display:none;
+                                            max-width:250px;
+                                            max-height:250px;
+                                            object-fit:cover;
+                                            border-radius:10px;" />
+                            </div>
+
+                            <div class="mt-4">
+
+                                <button type="submit"
+                                        class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Değişiklikleri Kaydet
+                                </button>
+
+                                <a href="@Url.Action("ChefList", "Chef")"
+                                   class="btn btn-secondary ml-2">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Geri Dön
+                                </a>
+
+                            </div>
+
                         </form>
+
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </section>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
 
+        const input = document.getElementById("chefImage");
+        const preview = document.getElementById("chefPreview");
 
+        let previewUrl = null;
+
+        input.addEventListener("change", function () {
+
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+
+            const file = input.files[0];
+
+            if (!file) {
+                preview.style.display = "none";
+                preview.removeAttribute("src");
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Fotoğraf en fazla 5 MB olabilir.");
+                input.value = "";
+                preview.style.display = "none";
+                return;
+            }
+
+            previewUrl = URL.createObjectURL(file);
+            preview.src = previewUrl;
+            preview.style.display = "block";
+        });
+    });
+</script>
