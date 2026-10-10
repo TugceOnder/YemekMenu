@@ -1,315 +1,710 @@
 ﻿@model List<ResultReservationDto>
+
 @{
     ViewData["Title"] = "ReservationList";
     Layout = "~/Views/AdminLayout/Index.cshtml";
+
     int count = 0;
+    var reservations = Model ?? new List<ResultReservationDto>();
+
+    var successMessage = TempData["ReservationSuccess"]?.ToString() ?? "";
+    var errorMessage = TempData["ReservationError"]?.ToString() ?? "";
 }
 
+<link rel="stylesheet"
+      href="~/css/PartialStyle.css"
+      asp-append-version="true" />
+
 <style>
-    .modern-card {
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-        border: none;
-    }
-
-    .modern-table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-        .modern-table thead th {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
-            color: #667eea;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.7rem;
-            letter-spacing: 0.5px;
-            padding: 0.9rem 0.7rem;
-            border: none;
-            border-bottom: 2px solid #667eea;
-        }
-
-            .modern-table thead th:first-child {
-                border-top-left-radius: 10px;
-            }
-
-            .modern-table thead th:last-child {
-                border-top-right-radius: 10px;
-            }
-
-        .modern-table tbody tr {
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-            .modern-table tbody tr:hover {
-                background-color: #f8f9ff;
-                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-            }
-
-        .modern-table tbody td {
-            padding: 0.9rem 0.7rem;
-            vertical-align: middle;
-            font-size: 0.9rem;
-        }
-
-    .reservation-number {
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 0.85rem;
-    }
-
-    .customer-name {
-        color: #333;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-    .date-badge {
-        background: #e3f2fd;
-        color: #1565c0;
-        padding: 0.3rem 0.7rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        display: inline-block;
-    }
-
-    .time-badge {
-        background: #f3e5f5;
-        color: #6a1b9a;
-        padding: 0.3rem 0.7rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        display: inline-block;
-    }
-
-    .people-badge {
-        background: #fff3e0;
-        color: #e65100;
-        padding: 0.3rem 0.7rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        display: inline-block;
-    }
-
-    .status-badge {
-        padding: 0.4rem 0.8rem;
-        border-radius: 15px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        display: inline-block;
-    }
-
-    .status-approved {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .status-pending {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .status-cancelled {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .modern-btn {
-        padding: 0.4rem 0.8rem;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        white-space: nowrap;
-    }
-
-        .modern-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-    .btn-edit {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .btn-delete {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-    }
-
-    .btn-approve {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-    }
-
-    .btn-cancel {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        color: white;
-    }
-
-    .btn-wait {
-        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-        color: white;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 0.3rem;
-        flex-wrap: wrap;
-    }
-
-    .btn-create {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
-
+    /* FİLTRELEME KARTI */
+    
 </style>
 
 <section class="section">
     <div class="section-body">
+
+        <!-- FİLTRELEME PANELİ -->
+        <div class="card reservation-filter-card">
+            <div class="card-body">
+
+                <div class="reservation-filter-title">
+                    <i class="fas fa-filter"></i>
+                    Rezervasyon Filtreleme
+                </div>
+
+                <div class="row">
+
+                    <!-- MÜŞTERİ ARA -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="filterName">
+                            Müşteri Adı
+                        </label>
+
+                        <input type="text"
+                               id="filterName"
+                               class="form-control"
+                               placeholder="Ad veya soyad ara..." />
+                    </div>
+
+                    <!-- DURUM FİLTRESİ -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="filterStatus">
+                            Rezervasyon Durumu
+                        </label>
+
+                        <select id="filterStatus"
+                                class="form-control">
+
+                            <option value="">Tüm Durumlar</option>
+                            <option value="Onay Bekliyor">Onay Bekliyor</option>
+                            <option value="Onaylandı">Onaylandı</option>
+                            <option value="İptal Edildi">İptal Edildi</option>
+
+                        </select>
+                    </div>
+
+                    <!-- BAŞLANGIÇ TARİHİ -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="filterStartDate">
+                            Başlangıç Tarihi
+                        </label>
+
+                        <input type="date"
+                               id="filterStartDate"
+                               class="form-control" />
+                    </div>
+
+                    <!-- BİTİŞ TARİHİ -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="filterEndDate">
+                            Bitiş Tarihi
+                        </label>
+
+                        <input type="date"
+                               id="filterEndDate"
+                               class="form-control" />
+                    </div>
+
+                </div>
+
+                <div class="reservation-filter-footer">
+
+                    <!-- GÖSTERİLEN KAYIT SAYISI -->
+                    <div class="filter-result-count">
+                        <i class="fas fa-info-circle"></i>
+
+                        <strong id="filteredCount">
+                            @reservations.Count
+                        </strong>
+
+                        / @reservations.Count rezervasyon gösteriliyor
+                    </div>
+
+                    <!-- FİLTRELE VE TEMİZLE -->
+                    <div class="filter-buttons">
+
+                        <button type="button"
+                                id="applyReservationFilters"
+                                class="filter-apply-btn">
+
+                            <i class="fas fa-filter"></i>
+                            Filtrele
+                        </button>
+
+                        <button type="button"
+                                id="clearReservationFilters"
+                                class="filter-clear-btn">
+
+                            <i class="fas fa-undo"></i>
+                            Filtreleri Temizle
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- REZERVASYON LİSTESİ -->
         <div class="row">
             <div class="col-12">
+
                 <div class="card modern-card">
-                    <div class="card-header" style="background: white; border-bottom: 2px solid #f0f0f0; border-radius: 15px 15px 0 0;">
-                        <h4 style="color: #667eea; font-weight: 700; margin: 0;">
-                            <i class="fas fa-calendar-check" style="margin-right: 10px;"></i>
+
+                    <div class="card-header"
+                         style="background:white;
+                                border-bottom:2px solid #f0f0f0;
+                                border-radius:15px 15px 0 0;">
+
+                        <h4 style="color:#667eea;
+                                   font-weight:700;
+                                   margin:0;">
+
+                            <i class="fas fa-calendar-check"
+                               style="margin-right:10px;"></i>
+
                             Rezervasyon Listesi
                         </h4>
-                    
-                    <div class="card-header-action">
-                        <a href="/Reservation/CreateReservation/" class="modern-btn btn-create">
-                            <i class="fas fa-plus"></i>
-                            Yeni Rezervasyon Girişi
-                        </a>
+
+                        <div class="card-header-action">
+
+                            <a href="/Reservation/CreateReservation/"
+                               class="modern-btn btn-create">
+
+                                <i class="fas fa-plus"></i>
+                                Yeni Rezervasyon Girişi
+                            </a>
+
+                        </div>
                     </div>
+
+                    <!-- CONTROLLER MESAJLARI -->
+                    <div id="reservationFlashMessages"
+                         data-success="@successMessage"
+                         data-error="@errorMessage"
+                         hidden>
                     </div>
-                    <div class="card-body" style="padding: 0;">
+
+                    <!-- TABLO -->
+                    <div class="card-body" style="padding:0;">
                         <div class="table-responsive">
-                            <table class="table modern-table">
+
+                            <table class="table modern-table reservation-table">
+
                                 <thead>
                                     <tr>
-                                        <th scope="col" style="width: 3%;">#</th>
-                                        <th scope="col" style="width: 13%;">Müşteri Adı</th>
-                                        <th scope="col" style="width: 12%;">Rezervasyon Tarih</th>
-                                        <th scope="col" style="width: 7%;">Rezervasyon Saati</th>
-                                        <th scope="col" style="width: 6%;">Kişi Sayısı</th>
-                                        <th scope="col" style="width: 12%;">Rezervasyon Durumu</th>
-                                        <th scope="col" style="width: 47%;" class="text-center">İşlemler</th>
+                                        <th>#</th>
+                                        <th>Müşteri Adı</th>
+                                        <th>Rezervasyon Tarihi</th>
+                                        <th>Rezervasyon Saati</th>
+                                        <th>Kişi Sayısı</th>
+                                        <th>Rezervasyon Durumu</th>
+                                        <th class="text-center">İşlemler</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach (var item in Model)
+
+                                <tbody id="reservationTableBody">
+
+                                    @foreach (var item in reservations)
                                     {
                                         count++;
-                                        <tr>
+
+                                        var normalizedStatus =
+                                        item.ReservationStatus == "Beklemede"
+                                        ? "Onay Bekliyor"
+                                        : item.ReservationStatus ?? "";
+
+                                        <tr class="reservation-row"
+                                            data-name="@item.NameSurname"
+                                            data-date="@item.ReservationDate.ToString("yyyy-MM-dd")"
+                                            data-status="@normalizedStatus">
+
+                                            <!-- SIRA -->
                                             <td>
-                                                <div class="reservation-number">
+                                                <div class="reservation-number row-number">
                                                     @count
                                                 </div>
                                             </td>
+
+                                            <!-- MÜŞTERİ -->
                                             <td>
                                                 <div class="customer-name">
-                                                    <i class="fas fa-user" style="color: #667eea; margin-right: 5px; font-size: 0.8rem;"></i>
+                                                    <i class="fas fa-user"
+                                                       style="color:#667eea; margin-right:5px;"></i>
+
                                                     @item.NameSurname
                                                 </div>
                                             </td>
+
+                                            <!-- TARİH -->
                                             <td>
                                                 <span class="date-badge">
-                                                    <i class="far fa-calendar"></i> @item.ReservationDate.ToString("dd.MM.yyyy")
+                                                    <i class="far fa-calendar"></i>
+                                                    @item.ReservationDate.ToString("dd.MM.yyyy")
                                                 </span>
                                             </td>
+
+                                            <!-- SAAT -->
                                             <td>
                                                 <span class="time-badge">
-                                                    <i class="far fa-clock"></i> @item.ReservationTime
+                                                    <i class="far fa-clock"></i>
+                                                    @item.ReservationTime
                                                 </span>
                                             </td>
+
+                                            <!-- KİŞİ SAYISI -->
                                             <td>
                                                 <span class="people-badge">
-                                                    <i class="fas fa-users"></i> @item.CountofPeople
+                                                    <i class="fas fa-users"></i>
+                                                    @item.CountofPeople
                                                 </span>
                                             </td>
+
+                                            <!-- DURUM -->
                                             <td>
-                                                @if (item.ReservationStatus == "Onay Bekliyor" || item.ReservationStatus == "Beklemede")
+
+                                                @if (normalizedStatus == "Onay Bekliyor")
                                                 {
                                                     <span class="status-badge status-pending">
-                                                        <i class="fas fa-hourglass-half"></i> @item.ReservationStatus
+                                                        <i class="fas fa-hourglass-half"></i>
+                                                        Onay Bekliyor
                                                     </span>
                                                 }
-                                                else if (item.ReservationStatus == "Onaylandı")
+                                                else if (normalizedStatus == "Onaylandı")
                                                 {
                                                     <span class="status-badge status-approved">
-                                                        <i class="fas fa-check-circle"></i> @item.ReservationStatus
+                                                        <i class="fas fa-check-circle"></i>
+                                                        Onaylandı
                                                     </span>
                                                 }
-                                                else if (item.ReservationStatus == "İptal Edildi")
+                                                else if (normalizedStatus == "İptal Edildi")
                                                 {
                                                     <span class="status-badge status-cancelled">
-                                                        <i class="fas fa-times-circle"></i> @item.ReservationStatus
+                                                        <i class="fas fa-times-circle"></i>
+                                                        İptal Edildi
                                                     </span>
                                                 }
                                                 else
                                                 {
                                                     <span class="status-badge status-pending">
-                                                        <i class="fas fa-info-circle"></i> @item.ReservationStatus
-                                                    </span>
-                                                }
+                                                        <i class="fas fa-info-circle"></i>
+
+                                                        @(string.IsNullOrWhiteSpace(normalizedStatus)
+                                                                                                        ? "Belirtilmemiş"
+                                                                                                        : normalizedStatus)
+                                            </span>
+                                                                                        }
+
                                             </td>
-                                            <td>
-                                                <div class="action-buttons" style="justify-content: center;">
-                                                    <a href="/Reservation/AcceptReservation/@item.ReservationId/" class="modern-btn btn-approve" title="Onayla">
+
+                                            <!-- İŞLEMLER -->
+                                            <td class="text-center reservation-action-cell">
+
+                                                <div class="reservation-action-buttons">
+
+                                                    <!-- ONAYLA -->
+                                                    <button type="button"
+                                                            class="modern-btn btn-approve js-status-action"
+                                                            data-name="@item.NameSurname"
+                                                            data-status="Onaylandı"
+                                                            data-url="@Url.Action("AcceptReservation", "Reservation", new { id = item.ReservationId })">
+
                                                         <i class="fas fa-check"></i>
                                                         Onayla
-                                                    </a>
-                                                    <a href="/Reservation/WaitReservation/@item.ReservationId/" class="modern-btn btn-wait" title="Beklet">
+                                                    </button>
+
+                                                    <!-- BEKLET -->
+                                                    <button type="button"
+                                                            class="modern-btn btn-wait js-status-action"
+                                                            data-name="@item.NameSurname"
+                                                            data-status="Onay Bekliyor"
+                                                            data-url="@Url.Action("WaitReservation", "Reservation", new { id = item.ReservationId })">
+
                                                         <i class="fas fa-pause"></i>
                                                         Beklet
-                                                    </a>
-                                                    <a href="/Reservation/CancelReservation/@item.ReservationId/" class="modern-btn btn-cancel" title="İptal Et">
+                                                    </button>
+
+                                                    <!-- İPTAL ET -->
+                                                    <button type="button"
+                                                            class="modern-btn btn-cancel js-status-action"
+                                                            data-name="@item.NameSurname"
+                                                            data-status="İptal Edildi"
+                                                            data-url="@Url.Action("CancelReservation", "Reservation", new { id = item.ReservationId })">
+
                                                         <i class="fas fa-ban"></i>
                                                         İptal Et
-                                                    </a>
-                                                    <a href="/Reservation/UpdateReservation/@item.ReservationId/" class="modern-btn btn-edit" title="Düzenle">
+                                                    </button>
+
+                                                    <!-- DÜZENLE -->
+                                                    <a href="@Url.Action("UpdateReservation", "Reservation", new { id = item.ReservationId })"
+                                                       class="modern-btn btn-edit">
+
                                                         <i class="fas fa-edit"></i>
                                                         Düzenle
                                                     </a>
-                                                    <a href="/Reservation/DeleteReservation/@item.ReservationId/" class="modern-btn btn-delete" title="Sil" onclick="return confirm('Bu rezervasyonu silmek istediğinize emin misiniz?');">
+
+                                                    <!-- SİL -->
+                                                    <button type="button"
+                                                            class="modern-btn btn-delete js-delete-reservation"
+                                                            data-name="@item.NameSurname"
+                                                            data-url="@Url.Action("DeleteReservation", "Reservation", new { id = item.ReservationId })">
+
                                                         <i class="fas fa-trash-alt"></i>
                                                         Sil
-                                                    </a>
+                                                    </button>
+
                                                 </div>
                                             </td>
+
                                         </tr>
                                     }
+
+                                    <!-- FİLTRELEME SONUCU BULUNAMADI -->
+                                    <tr id="noFilteredReservations"
+                                        style="display:none;">
+
+                                        <td colspan="7"
+                                            class="filter-empty-message">
+
+                                            <i class="fas fa-search"></i>
+                                            Filtreye uygun rezervasyon bulunamadı.
+
+                                        </td>
+                                    </tr>
+
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
-                    <div class="card-footer" style="background: white; border-top: 2px solid #f0f0f0;">
-                        <div style="color: #999; font-size: 0.875rem;">
+
+                    <!-- ALT BİLGİ -->
+                    <div class="card-footer"
+                         style="background:white;
+                                border-top:2px solid #f0f0f0;">
+
+                        <div style="color:#999; font-size:0.875rem;">
+
                             <i class="fas fa-info-circle"></i>
-                            Toplam <strong style="color: #667eea;">@Model.Count</strong> rezervasyon listelendi
+
+                            Toplam
+                            <strong style="color:#667eea;">
+                                @reservations.Count
+                            </strong>
+                            rezervasyon listelendi.
+
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
+
     </div>
 </section>
+
+<!-- SWEETALERT -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    (function () {
+
+        // ==========================================
+        // 1. FİLTRELEME
+        // ==========================================
+
+        const filterName =
+            document.getElementById("filterName");
+
+        const filterStatus =
+            document.getElementById("filterStatus");
+
+        const filterStartDate =
+            document.getElementById("filterStartDate");
+
+        const filterEndDate =
+            document.getElementById("filterEndDate");
+
+        const filteredCount =
+            document.getElementById("filteredCount");
+
+        const emptyMessage =
+            document.getElementById("noFilteredReservations");
+
+        const rows = Array.from(
+            document.querySelectorAll(".reservation-row")
+        );
+
+        function normalizeText(value) {
+            return (value || "")
+                .toLocaleLowerCase("tr-TR")
+                .trim();
+        }
+
+        function filterReservations() {
+
+            const searchName = normalizeText(filterName.value);
+            const selectedStatus = filterStatus.value;
+            const startDate = filterStartDate.value;
+            const endDate = filterEndDate.value;
+
+            // TARİH KONTROLÜ
+            if (startDate && endDate && startDate > endDate) {
+
+                if (typeof Swal !== "undefined") {
+
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Geçersiz Tarih Aralığı",
+                        text: "Başlangıç tarihi bitiş tarihinden sonra olamaz.",
+                        confirmButtonText: "Tamam",
+                        confirmButtonColor: "#667eea"
+                    });
+
+                } else {
+
+                    alert("Başlangıç tarihi bitiş tarihinden sonra olamaz.");
+                }
+
+                return;
+            }
+
+            let visibleCount = 0;
+
+            rows.forEach(function (row) {
+
+                const name = normalizeText(row.dataset.name);
+                const status = row.dataset.status || "";
+                const date = row.dataset.date || "";
+
+                const matchesName =
+                    !searchName || name.includes(searchName);
+
+                const matchesStatus =
+                    !selectedStatus || status === selectedStatus;
+
+                const matchesStartDate =
+                    !startDate || date >= startDate;
+
+                const matchesEndDate =
+                    !endDate || date <= endDate;
+
+                const isVisible =
+                    matchesName &&
+                    matchesStatus &&
+                    matchesStartDate &&
+                    matchesEndDate;
+
+                row.style.display = isVisible ? "" : "none";
+
+                if (isVisible) {
+
+                    visibleCount++;
+
+                    const number = row.querySelector(".row-number");
+
+                    if (number) {
+                        number.textContent = visibleCount;
+                    }
+                }
+            });
+
+            if (filteredCount) {
+                filteredCount.textContent = visibleCount;
+            }
+
+            if (emptyMessage) {
+                emptyMessage.style.display =
+                    visibleCount === 0 ? "" : "none";
+            }
+        }
+
+        // FİLTRELE BUTONU
+        document.getElementById("applyReservationFilters")
+            .addEventListener("click", function () {
+
+                filterReservations();
+            });
+
+        // FİLTRELERİ TEMİZLE BUTONU
+        document.getElementById("clearReservationFilters")
+            .addEventListener("click", function () {
+
+                filterName.value = "";
+                filterStatus.value = "";
+                filterStartDate.value = "";
+                filterEndDate.value = "";
+
+                filterReservations();
+            });
+
+
+        // ==========================================
+        // 2. SWEETALERT ONAY PENCERESİ
+        // ==========================================
+
+        function showConfirm(options, onConfirm) {
+
+            if (typeof Swal === "undefined") {
+
+                if (confirm(options.text)) {
+                    onConfirm();
+                }
+
+                return;
+            }
+
+            Swal.fire({
+                icon: options.icon,
+                title: options.title,
+                text: options.text,
+                showCancelButton: true,
+                confirmButtonText: options.confirmText,
+                cancelButtonText: "Vazgeç",
+                confirmButtonColor: options.confirmColor,
+                cancelButtonColor: "#6c757d",
+                reverseButtons: true
+
+            }).then(function (result) {
+
+                if (result.isConfirmed) {
+                    onConfirm();
+                }
+
+            });
+        }
+
+
+        // ==========================================
+        // 3. ONAYLA / BEKLET / İPTAL ET
+        // ==========================================
+
+        document.querySelectorAll(".js-status-action")
+            .forEach(function (button) {
+
+                button.addEventListener("click", function () {
+
+                    const name = this.dataset.name || "Bu müşteri";
+                    const status = this.dataset.status || "";
+                    const url = this.dataset.url || "";
+
+                    let title = "";
+                    let message = "";
+                    let confirmText = "";
+                    let confirmColor = "#667eea";
+                    let icon = "question";
+
+                    if (status === "Onaylandı") {
+
+                        title = "Rezervasyonu Onayla";
+
+                        message = name +
+                            " adlı müşterinin rezervasyonunu onaylamak istiyor musunuz?";
+
+                        confirmText = "Evet, Onayla";
+                        confirmColor = "#28a745";
+
+                    }
+                    else if (status === "Onay Bekliyor") {
+
+                        title = "Rezervasyonu Beklet";
+
+                        message = name +
+                            " adlı müşterinin rezervasyonunu beklemeye almak istiyor musunuz?";
+
+                        confirmText = "Evet, Beklet";
+                        confirmColor = "#f0ad4e";
+                        icon = "warning";
+
+                    }
+                    else if (status === "İptal Edildi") {
+
+                        title = "Rezervasyonu İptal Et";
+
+                        message = name +
+                            " adlı müşterinin rezervasyonunu iptal etmek istiyor musunuz?";
+
+                        confirmText = "Evet, İptal Et";
+                        confirmColor = "#dc3545";
+                        icon = "warning";
+                    }
+
+                    showConfirm(
+                        {
+                            title: title,
+                            text: message,
+                            icon: icon,
+                            confirmText: confirmText,
+                            confirmColor: confirmColor
+                        },
+                        function () {
+
+                            if (url) {
+                                window.location.href = url;
+                            }
+
+                        }
+                    );
+                });
+            });
+
+
+        // ==========================================
+        // 4. SİL
+        // ==========================================
+
+        document.querySelectorAll(".js-delete-reservation")
+            .forEach(function (button) {
+
+                button.addEventListener("click", function () {
+
+                    const name = this.dataset.name || "Bu müşteri";
+                    const url = this.dataset.url || "";
+
+                    showConfirm(
+                        {
+                            title: "Rezervasyonu Sil",
+                            text: name +
+                                " adlı müşterinin rezervasyonunu kalıcı olarak silmek istiyor musunuz?",
+                            icon: "warning",
+                            confirmText: "Evet, Sil",
+                            confirmColor: "#dc3545"
+                        },
+                        function () {
+
+                            if (url) {
+                                window.location.href = url;
+                            }
+
+                        }
+                    );
+                });
+            });
+
+
+        // ==========================================
+        // 5. CONTROLLER MESAJLARI
+        // ==========================================
+
+        const flashMessages =
+            document.getElementById("reservationFlashMessages");
+
+        if (flashMessages) {
+
+            const successMessage =
+                flashMessages.dataset.success || "";
+
+            const errorMessage =
+                flashMessages.dataset.error || "";
+
+            if (successMessage) {
+
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "success",
+                        title: "İşlem Başarılı",
+                        text: successMessage,
+                        confirmButtonColor: "#667eea"
+                    });
+                } else {
+                    alert(successMessage);
+                }
+            }
+            else if (errorMessage) {
+
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "İşlem Başarısız",
+                        text: errorMessage,
+                        confirmButtonColor: "#dc3545"
+                    });
+                } else {
+                    alert(errorMessage);
+                }
+            }
+        }
+
+    })();
+</script>

@@ -15,12 +15,13 @@
       asp-append-version="true" />
 
 
+
 <section class="section">
     <div class="section-body">
         <div class="row">
             <div class="col-12">
 
-                <!-- Sıralama için güvenlik anahtarı -->
+                <!-- SIRALAMA GÜVENLİK ANAHTARI -->
                 <form id="productOrderTokenForm" method="post">
                     @Html.AntiForgeryToken()
                 </form>
@@ -31,66 +32,47 @@
 
                 <div class="card modern-card">
 
-                    <!-- Başlık -->
+                    <!-- BAŞLIK -->
                     <div class="card-header"
-                         style="background: white;
-                                border-bottom: 2px solid #f0f0f0;
-                                border-radius: 15px 15px 0 0;">
+                         style="background:white;
+                                border-bottom:2px solid #f0f0f0;
+                                border-radius:15px 15px 0 0;">
 
-                        <h4 style="color: #667eea;
-                                   font-weight: 700;
-                                   margin: 0;">
+                        <h4 style="color:#667eea;
+                                   font-weight:700;
+                                   margin:0;">
 
                             <i class="fas fa-box-open"
-                               style="margin-right: 10px;"></i>
+                               style="margin-right:10px;"></i>
 
                             Ürün Listesi Yönetimi
                         </h4>
 
                         <div class="card-header-action">
-
                             <a href="/Product/CreateProduct/"
                                class="modern-btn btn-create">
 
                                 <i class="fas fa-plus"></i>
                                 Yeni Ürün Ekle
                             </a>
-
                         </div>
                     </div>
 
-                    <!-- Tablo -->
-                    <div class="card-body" style="padding: 0;">
+                    <!-- TABLO -->
+                    <div class="card-body" style="padding:0;">
                         <div class="table-responsive">
 
                             <table class="table modern-table">
 
                                 <thead>
                                     <tr>
-                                        <th scope="col" style="width: 8%;">
-                                            #
-                                        </th>
-
-                                        <th scope="col" style="width: 6%;"></th>
-
-                                        <th scope="col" style="width: 20%;">
-                                            Ürün Adı
-                                        </th>
-
-                                        <th scope="col" style="width: 12%;">
-                                            Fiyat
-                                        </th>
-
-                                        <th scope="col" style="width: 12%;">
-                                            Kategori
-                                        </th>
-
-                                        <th scope="col" style="width: 8%;">
-                                            Stok
-                                        </th>
-
-                                        <th scope="col"
-                                            style="width: 34%;"
+                                        <th style="width:8%;">#</th>
+                                        <th style="width:6%;"></th>
+                                        <th style="width:20%;">Ürün Adı</th>
+                                        <th style="width:12%;">Fiyat</th>
+                                        <th style="width:12%;">Kategori</th>
+                                    
+                                        <th style="width:34%;"
                                             class="text-center">
                                             İşlemler
                                         </th>
@@ -103,12 +85,19 @@
                                     {
                                         count++;
 
+                                        @* ResultProductDto içinde ImageUrl
+                                           tanımlıysa görseli alır.
+                                           Tanımlı değilse hata vermez. *@
+                                        var imageUrl = item.GetType()
+                                        .GetProperty("ImageUrl")
+                                        ?.GetValue(item)?.ToString() ?? "";
+
                                         <tr data-id="@item.ProductId">
 
-                                            <!-- Sıra -->
+                                            <!-- SIRA NUMARASI -->
                                             <td>
                                                 <span class="drag-handle"
-                                                      title="Ürünü sürükleyerek sırala">
+                                                      title="Sürükleyerek sırala">
                                                     <i class="fas fa-grip-vertical"></i>
                                                 </span>
 
@@ -117,28 +106,28 @@
                                                 </strong>
                                             </td>
 
-                                            <!-- Ürün ikonu -->
+                                            <!-- ÜRÜN İKONU -->
                                             <td>
                                                 <div class="product-icon">
                                                     <i class="fas fa-utensils"></i>
                                                 </div>
                                             </td>
 
-                                            <!-- Ürün adı -->
+                                            <!-- ÜRÜN ADI -->
                                             <td>
-                                                <strong style="color: #333;
-                                                                   font-size: 1rem;">
+                                                <strong style="color:#333;
+                                                                   font-size:1rem;">
                                                     @item.ProductName
                                                 </strong>
 
                                                 <br />
 
-                                                <small style="color: #999;">
+                                                <small style="color:#999;">
                                                     Ürün ID: #@item.ProductId
                                                 </small>
                                             </td>
 
-                                            <!-- Fiyat -->
+                                            <!-- FİYAT -->
                                             <td>
                                                 <span class="price-badge">
                                                     <i class="fas fa-lira-sign"></i>
@@ -146,7 +135,7 @@
                                                 </span>
                                             </td>
 
-                                            <!-- Kategori -->
+                                            <!-- KATEGORİ -->
                                             <td>
                                                 <span class="category-tag">
                                                     <i class="fas fa-tag"></i>
@@ -154,34 +143,29 @@
                                                 </span>
                                             </td>
 
-                                            <!-- Stok -->
-                                            <td>
-                                                <span style="background: #fff3cd;
-                                                                 color: #856404;
-                                                                 padding: 0.3rem 0.7rem;
-                                                                 border-radius: 12px;
-                                                                 font-size: 0.8rem;
-                                                                 font-weight: 600;
-                                                                 white-space: nowrap;">
+                                            <!-- STOK -->
+                                           
 
-                                                    <i class="fas fa-cubes"></i>
-                                                    @Random.Shared.Next(10, 100)
-                                                </span>
-                                            </td>
-
-                                            <!-- İşlemler: Yan yana -->
+                                            <!-- İŞLEMLER -->
                                             <td class="text-center product-action-cell">
 
                                                 <div class="product-actions">
 
-                                                    <a href="/Product/ViewProduct/@item.ProductId/"
-                                                       class="modern-btn btn-view"
-                                                       title="Görüntüle">
+                                                    <!-- GÖRÜNTÜLE -->
+                                                    <button type="button"
+                                                            class="modern-btn btn-view js-view-product"
+                                                            data-id="@item.ProductId"
+                                                            data-name="@item.ProductName"
+                                                            data-price="@item.Price.ToString("N2")"
+                                                            data-category="@item.CategoryName"
+                                                            data-image="@imageUrl"
+                                                            title="Görüntüle">
 
                                                         <i class="fas fa-eye"></i>
                                                         Görüntüle
-                                                    </a>
+                                                    </button>
 
+                                                    <!-- DÜZENLE -->
                                                     <a href="/Product/UpdateProduct/@item.ProductId/"
                                                        class="modern-btn btn-edit"
                                                        title="Düzenle">
@@ -190,6 +174,7 @@
                                                         Düzenle
                                                     </a>
 
+                                                    <!-- SİL -->
                                                     <a href="/Product/DeleteProduct/@item.ProductId/"
                                                        class="modern-btn btn-delete"
                                                        title="Sil"
@@ -209,40 +194,37 @@
                                         <tr>
                                             <td colspan="7"
                                                 class="text-center text-muted"
-                                                style="padding: 30px;">
-
+                                                style="padding:30px;">
                                                 Görüntülenecek ürün bulunamadı.
-
                                             </td>
                                         </tr>
                                     }
 
                                 </tbody>
-
                             </table>
+
                         </div>
                     </div>
 
-                    <!-- Alt bilgi -->
+                    <!-- ALT BİLGİ -->
                     <div class="card-footer"
-                         style="background: white;
-                                border-top: 2px solid #f0f0f0;">
+                         style="background:white;
+                                border-top:2px solid #f0f0f0;">
 
-                        <div style="color: #999; font-size: 0.875rem;">
+                        <div style="color:#999; font-size:0.875rem;">
 
                             <i class="fas fa-info-circle"></i>
 
                             Toplam
-                            <strong style="color: #667eea;">
+                            <strong style="color:#667eea;">
                                 @products.Count
                             </strong>
                             ürün listelendi.
 
-                            <span style="margin-left: 12px;">
+                            <span style="margin-left:12px;">
                                 <i class="fas fa-arrows-alt-v"></i>
                                 Sıralamak için taşıma ikonunu sürükleyin.
                             </span>
-
                         </div>
                     </div>
 
@@ -252,11 +234,102 @@
     </div>
 </section>
 
-<!-- SortableJS -->
+<!-- SWEETALERT -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- SORTABLE JS -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 
 <script>
     (function () {
+
+        // ==================================
+        // 1. GÖRÜNTÜLE - SWEETALERT
+        // ==================================
+
+        document.querySelectorAll(".js-view-product").forEach(function (button) {
+
+            button.addEventListener("click", function () {
+
+                const id = this.dataset.id || "";
+                const name = this.dataset.name || "";
+                const price = this.dataset.price || "";
+                const category = this.dataset.category || "";
+                const imageUrl = (this.dataset.image || "").trim();
+
+                const container = document.createElement("div");
+                container.className = "product-detail";
+
+                // KÜÇÜK ÜRÜN FOTOĞRAFI
+                if (imageUrl) {
+
+                    const image = document.createElement("img");
+
+                    image.src = imageUrl;
+                    image.alt = name || "Ürün görseli";
+                    image.className = "product-detail-image";
+
+                    image.onerror = function () {
+                        image.remove();
+                    };
+
+                    container.appendChild(image);
+                }
+
+                // DETAY SATIRI OLUŞTUR
+                function addDetail(label, value) {
+
+                    const row = document.createElement("div");
+                    row.className = "product-detail-row";
+
+                    const labelElement = document.createElement("span");
+                    labelElement.className = "product-detail-label";
+                    labelElement.textContent = label;
+
+                    const valueElement = document.createElement("p");
+                    valueElement.className = "product-detail-value";
+                    valueElement.textContent = value || "Belirtilmemiş";
+
+                    row.appendChild(labelElement);
+                    row.appendChild(valueElement);
+
+                    container.appendChild(row);
+                }
+
+                addDetail("Ürün Numarası", "#" + id);
+                addDetail("Ürün Adı", name);
+                addDetail("Fiyat", price + " TL");
+                addDetail("Kategori", category);
+
+                if (typeof Swal !== "undefined") {
+
+                    Swal.fire({
+                        title: "Ürün Detayları",
+                        html: container,
+                        icon: "info",
+                        width: 480,
+                        customClass: {
+                            popup: "product-popup"
+                        },
+                        confirmButtonText: "Kapat",
+                        confirmButtonColor: "#667eea"
+                    });
+
+                } else {
+
+                    alert(
+                        "Ürün: " + name + "\n\n" +
+                        "Fiyat: " + price + " TL\n\n" +
+                        "Kategori: " + category
+                    );
+                }
+            });
+        });
+
+
+        // ==================================
+        // 2. ÜRÜNLERİ SÜRÜKLE-BIRAK SIRALAMA
+        // ==================================
 
         function initializeSorting() {
 
@@ -267,13 +340,13 @@
                 '#productOrderTokenForm input[name="__RequestVerificationToken"]'
             );
 
-            if (!tbody || typeof Sortable === "undefined") {
+            if (!tbody) return;
 
-                if (message) {
-                    message.className = "alert alert-danger";
-                    message.textContent =
-                        "Sürükle-bırak kütüphanesi yüklenemedi.";
-                }
+            if (typeof Sortable === "undefined") {
+
+                message.className = "alert alert-danger";
+                message.textContent =
+                    "Sürükle-bırak kütüphanesi yüklenemedi.";
 
                 return;
             }
@@ -298,7 +371,7 @@
                         tbody.querySelectorAll("tr[data-id]")
                     );
 
-                    // Sıra numaralarını güncelle
+                    // EKRANDAKİ SIRA NUMARALARINI GÜNCELLE
                     rows.forEach((row, index) => {
 
                         const number = row.querySelector(".row-number");
@@ -307,13 +380,13 @@
                             number.textContent = index + 1;
                     });
 
-                    // Yeni ürün sırası
                     const productIds = rows.map(
                         row => Number(row.dataset.id)
                     );
 
                     message.className = "alert alert-info";
-                    message.textContent = "Ürün sıralaması kaydediliyor...";
+                    message.textContent =
+                        "Ürün sıralaması kaydediliyor...";
 
                     try {
 
@@ -367,11 +440,14 @@
         }
 
         if (document.readyState === "loading") {
+
             document.addEventListener(
                 "DOMContentLoaded",
                 initializeSorting
             );
+
         } else {
+
             initializeSorting();
         }
 

@@ -1,52 +1,248 @@
-﻿@model GetReservationByIdDto
+﻿@model UpdateReservationDto
 
 @{
     ViewData["Title"] = "UpdateReservation";
     Layout = "~/Views/AdminLayout/Index.cshtml";
 }
 
+<link rel="stylesheet"
+      href="~/css/PartialStyle.css"
+      asp-append-version="true" />
+<style>
+    
+</style>
 
 <section class="section">
     <div class="section-body">
+
         <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
-                <div class="card">
+
+            <div class="col-12">
+
+                <div class="card reservation-edit-card">
+
                     <div class="card-header">
-                        <h4>Rezervasyon Güncelleme Sayfası</h4>
+                        <h4>
+                            <i class="fas fa-edit"></i>
+                            Rezervasyon Düzenleme
+                        </h4>
                     </div>
+
                     <div class="card-body">
-                        <form method="post">
-                            <input type="hidden" asp-for="ReservationId" />
-                            <label>Misafir Adı Soyadı</label>
-                            <input type="text" asp-for="NameSurname" class="form-control" />
-                            <br />
-                            <label>Misafir Email Adresi</label>
-                            <input type="text" asp-for="Email" class="form-control" />
-                            <br />
-                            <label>Misafir Telefon Numarası</label>
-                            <input type="tel" asp-for="PhoneNumber" class="form-control" />
-                            <br />
-                            <label>Rezervasyon Tarihi</label>
-                            <input type="date" asp-for="ReservationDate" class="form-control" />
-                            <br />
-                            <label>Rezervasyon Saati</label>
-                            <input type="time" asp-for="ReservationTime" class="form-control" />
-                            <br />
-                            <label>Kişi Sayısı</label>
-                            <input type="number" asp-for="CountofPeople" class="form-control" />
-                            <br />
-                            <label>Misafir Mesajı</label>
-                            <input type="text" asp-for="Message" class="form-control" />
-                            <br />
-                            <label>Rezervasyon Durumu</label>
-                            <input type="text" asp-for="ReservationStatus" readonly class="form-control" />
-                            <br />
-                            <button class="btn btn-primary">Rezervasyonu Güncelle</button>
+
+                        <form action="@Url.Action("UpdateReservation", "Reservation")"
+                              method="post"
+                              id="updateReservationForm">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   asp-for="ReservationId" />
+
+                            <div asp-validation-summary="All"
+                                 class="text-danger mb-3"></div>
+
+                            <div class="row">
+
+                                <!-- AD SOYAD -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Ad Soyad</label>
+
+                                        <input asp-for="NameSurname"
+                                               class="form-control"
+                                               required />
+                                    </div>
+                                </div>
+
+                                <!-- E-POSTA -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>E-posta</label>
+
+                                        <input asp-for="Email"
+                                               type="email"
+                                               class="form-control"
+                                               required />
+                                    </div>
+                                </div>
+
+                                <!-- TELEFON -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Telefon</label>
+
+                                        <input asp-for="PhoneNumber"
+                                               class="form-control"
+                                               required />
+                                    </div>
+                                </div>
+
+                                <!-- TARİH -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Rezervasyon Tarihi</label>
+
+                                        <input asp-for="ReservationDate"
+                                               type="date"
+                                               asp-format="{0:yyyy-MM-dd}"
+                                               class="form-control"
+                                               required />
+                                    </div>
+                                </div>
+
+                                <!-- SAAT -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Rezervasyon Saati</label>
+
+                                        <input asp-for="ReservationTime"
+                                               type="time"
+                                               class="form-control"
+                                               required />
+                                    </div>
+                                </div>
+
+                                <!-- KİŞİ SAYISI -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Kişi Sayısı</label>
+
+                                        <input asp-for="CountofPeople"
+                                               type="number"
+                                               min="1"
+                                               class="form-control"
+                                               required />
+                                    </div>
+                                </div>
+
+                                <!-- REZERVASYON DURUMU -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+
+                                        <label>
+                                            <i class="fas fa-tasks"></i>
+                                            Rezervasyon Durumu
+                                        </label>
+
+                                        <select asp-for="ReservationStatus"
+                                                id="ReservationStatus"
+                                                class="form-control"
+                                                required>
+
+                                            <option value="Onay Bekliyor">
+                                                Onay Bekliyor
+                                            </option>
+
+                                            <option value="Onaylandı">
+                                                Onaylandı
+                                            </option>
+
+                                            <option value="İptal Edildi">
+                                                İptal Edildi
+                                            </option>
+
+                                        </select>
+
+                                        <span asp-validation-for="ReservationStatus"
+                                              class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- MESAJ -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Ek Mesaj</label>
+
+                                        <textarea asp-for="Message"
+                                                  rows="4"
+                                                  class="form-control"></textarea>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- BUTONLAR -->
+                            <div class="mt-4">
+
+                                <button type="submit"
+                                        class="reservation-save-btn">
+
+                                    <i class="fas fa-save"></i>
+                                    Değişiklikleri Kaydet
+                                </button>
+
+                                <a href="/Reservation/ReservationList/"
+                                   class="reservation-back-btn ml-2">
+
+                                    <i class="fas fa-arrow-left"></i>
+                                    Listeye Dön
+                                </a>
+
+                            </div>
+
                         </form>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    (function () {
+
+        const form = document.getElementById("updateReservationForm");
+
+        if (!form) return;
+
+        form.addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const status =
+                document.getElementById("ReservationStatus").value;
+
+            if (typeof Swal === "undefined") {
+
+                if (confirm("Rezervasyon değişiklikleri kaydedilsin mi?")) {
+                    form.submit();
+                }
+
+                return;
+            }
+
+            Swal.fire({
+                icon: "question",
+                title: "Değişiklikleri Kaydet",
+                text: "Rezervasyon durumu: " + status +
+                      ". Değişiklikleri kaydetmek istiyor musunuz?",
+                showCancelButton: true,
+                confirmButtonText: "Evet, Kaydet",
+                cancelButtonText: "Vazgeç",
+                confirmButtonColor: "#667eea",
+                cancelButtonColor: "#6c757d"
+            }).then(function (result) {
+
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+
+            });
+
+        });
+
+    })();
+</script>

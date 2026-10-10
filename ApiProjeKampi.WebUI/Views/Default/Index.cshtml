@@ -2,17 +2,22 @@
 
 @{
     Layout = null;
+
+    string reservationSuccess =
+        TempData["ReservationSuccess"]?.ToString() ?? "";
+
+    string reservationError =
+        ViewBag.ReservationError?.ToString() ?? "";
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 
 @await Component.InvokeAsync("_HeadDefaultComponentPartial")
 
 <body class="index-page">
 
     @await Component.InvokeAsync("_NavbarDefaultComponentPartial")
-
 
     <main class="main">
 
@@ -32,54 +37,200 @@
 
         @await Component.InvokeAsync("_ChefDefualtComponentPartial")
 
+        <!-- REZERVASYON PANELİ -->
         <section id="book-a-table" class="book-a-table section">
 
             <div class="container section-title" data-aos="fade-up">
+
                 <h2>Rezervasyon Paneli</h2>
-                <p><span>Sizleri Ağırlamak İçin</span> <span class="description-title">Sabırsızlanıyoruz<br></span></p>
-            </div><!-- End Section Title -->
+
+                <p>
+                    <span>Sizleri Ağırlamak İçin</span>
+                    <span class="description-title">
+                        Sabırsızlanıyoruz
+                    </span>
+                </p>
+
+            </div>
 
             <div class="container">
 
-                <div class="row g-0" data-aos="fade-up" data-aos-delay="100">
+                <div class="row g-0"
+                     data-aos="fade-up"
+                     data-aos-delay="100">
 
-                    <div class="col-lg-4 reservation-img" style="background-image: url(/yummy-red-1.0.0/assets/img/reservation.jpg);"></div>
+                    <!-- SOL REZERVASYON FOTOĞRAFI -->
+                    <div class="col-lg-4 reservation-img"
+                         style="background-image: url('/yummy-red-1.0.0/assets/img/reservation.jpg');">
+                    </div>
 
-                    <div class="col-lg-8 d-flex align-items-center reservation-form-bg" data-aos="fade-up" data-aos-delay="200">
-                        <form method="post" role="form" class="php-email-form">
+                    <!-- REZERVASYON FORMU -->
+                    <div class="col-lg-8 d-flex align-items-center reservation-form-bg"
+                         data-aos="fade-up"
+                         data-aos-delay="200">
+
+                        <form action="@Url.Action("Index", "Default")"
+                              method="post"
+                              id="reservationForm"
+                              class="reservation-custom-form">
+
+                            @Html.AntiForgeryToken()
+
+                            <!-- CONTROLLER MESAJLARI -->
+                            <div id="reservationMessages"
+                                 data-success="@reservationSuccess"
+                                 data-error="@reservationError"
+                                 hidden>
+                            </div>
+
+                            <!-- MODEL HATALARI -->
+                            <div asp-validation-summary="All"
+                                 class="text-danger mb-3"></div>
+
+                            @if (!string.IsNullOrWhiteSpace(reservationError))
+                            {
+                                <div class="alert alert-danger mb-3">
+                                    @reservationError
+                                </div>
+                            }
+
                             <div class="row gy-4">
+
+                                <!-- AD SOYAD -->
                                 <div class="col-lg-4 col-md-6">
-                                    <input type="text" asp-for="NameSurname" class="form-control" id="name" placeholder="Adınız Soyadınız" required="">
+
+                                    <input asp-for="NameSurname"
+                                           type="text"
+                                           id="name"
+                                           class="form-control"
+                                           placeholder="Adınız Soyadınız"
+                                           required />
+
+                                    <span asp-validation-for="NameSurname"
+                                          class="text-danger"></span>
+
                                 </div>
+
+                                <!-- E-POSTA -->
                                 <div class="col-lg-4 col-md-6">
-                                    <input type="email" class="form-control" asp-for="Email" id="email" placeholder="Email Adresiniz" required="">
+
+                                    <input asp-for="Email"
+                                           type="email"
+                                           id="email"
+                                           class="form-control"
+                                           placeholder="E-posta Adresiniz"
+                                           required />
+
+                                    <span asp-validation-for="Email"
+                                          class="text-danger"></span>
+
                                 </div>
+
+                                <!-- TELEFON -->
                                 <div class="col-lg-4 col-md-6">
-                                    <input type="text" class="form-control" asp-for="PhoneNumber" id="phone" placeholder="Telefon Numaranız" required="">
+
+                                    <input asp-for="PhoneNumber"
+                                           type="tel"
+                                           id="phone"
+                                           class="form-control"
+                                           placeholder="Telefon Numaranız"
+                                           required />
+
+                                    <span asp-validation-for="PhoneNumber"
+                                          class="text-danger"></span>
+
                                 </div>
+
+                                <!-- TARİH -->
                                 <div class="col-lg-4 col-md-6">
-                                    <input type="date" asp-for="ReservationDate" class="form-control" id="date" placeholder="Rezervasyon Tarihi" required="">
+
+                                    <label for="date" class="form-label">
+                                        Rezervasyon Tarihi
+                                    </label>
+
+                                    <input asp-for="ReservationDate"
+                                           type="date"
+                                           id="date"
+                                           class="form-control"
+                                           required />
+
+                                    <span asp-validation-for="ReservationDate"
+                                          class="text-danger"></span>
+
                                 </div>
+
+                                <!-- SAAT -->
                                 <div class="col-lg-4 col-md-6">
-                                    <input type="time" class="form-control" asp-for="ReservationTime" id="time" placeholder="Rezervasyon Saati" required="">
+
+                                    <label for="time" class="form-label">
+                                        Rezervasyon Saati
+                                    </label>
+
+                                    <input asp-for="ReservationTime"
+                                           type="time"
+                                           id="time"
+                                           class="form-control"
+                                           required />
+
+                                    <span asp-validation-for="ReservationTime"
+                                          class="text-danger"></span>
+
                                 </div>
+
+                                <!-- KİŞİ SAYISI -->
                                 <div class="col-lg-4 col-md-6">
-                                    <input type="number" class="form-control" asp-for="CountofPeople" id="people" placeholder="Kişi Sayısı" required="">
+
+                                    <label for="people" class="form-label">
+                                        Kişi Sayısı
+                                    </label>
+
+                                    <input asp-for="CountofPeople"
+                                           type="number"
+                                           id="people"
+                                           min="1"
+                                           step="1"
+                                           class="form-control"
+                                           placeholder="Kişi Sayısı"
+                                           required />
+
+                                    <span asp-validation-for="CountofPeople"
+                                          class="text-danger"></span>
+
                                 </div>
+
                             </div>
 
+                            <!-- EK MESAJ -->
                             <div class="form-group mt-3">
-                                <textarea class="form-control" asp-for="Message" rows="5" placeholder="Eklemedik İstedikleriniz"></textarea>
+
+                                <textarea asp-for="Message"
+                                          id="message"
+                                          class="form-control"
+                                          rows="5"
+                                          placeholder="Eklemek İstedikleriniz (İsteğe Bağlı)"></textarea>
+
+                                <span asp-validation-for="Message"
+                                      class="text-danger"></span>
+
                             </div>
 
-                            <div class="text-center mt-3">
-                                <div class="loading">Loading</div>
-                                <div class="error-message"></div>
-                                <div class="sent-message">Rezervasyon talebiniz alınmıştır. ekip arkadaşlarımız size en kısa süre içinde telefon ya da e-mail üzerinden dönüş sağlayacaktır. Teşekkürler, görüşmek üzere!</div>
-                                <button type="submit">Rezervasyon Yapın</button>
+                            <!-- REZERVASYON BUTONU -->
+                            <div class="text-center mt-4">
+
+                                <button type="submit"
+                                        id="reservationSubmitBtn"
+                                        class="reservation-submit-btn">
+
+                                    <i class="bi bi-calendar-check"></i>
+                                    Rezervasyon Yapın
+
+                                </button>
+
                             </div>
+
                         </form>
-                    </div><!-- End Reservation Form -->
+
+                    </div>
 
                 </div>
 
@@ -88,13 +239,242 @@
         </section>
 
         @await Component.InvokeAsync("_DefaultGalleryComponentPartial")
-    
+
         @await Component.InvokeAsync("_DefaultContactComponentPartial")
 
     </main>
 
     @await Component.InvokeAsync("_FooterDefaultComponentPartial")
 
-</body>
+    <!-- TASARIM -->
+    <style>
+        .reservation-custom-form {
+            width: 100%;
+            padding: 40px;
+        }
 
+            .reservation-custom-form .form-control {
+                padding: 12px 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 14px;
+            }
+
+                .reservation-custom-form .form-control:focus {
+                    border-color: #ce1212;
+                    box-shadow: 0 0 0 3px rgba(206, 18, 18, 0.1);
+                }
+
+            .reservation-custom-form .form-label {
+                font-size: 13px;
+                font-weight: 600;
+                margin-bottom: 6px;
+            }
+
+        .reservation-submit-btn {
+            background: #ce1212;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 14px 35px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+            .reservation-submit-btn:hover {
+                background: #e53935;
+                color: white;
+            }
+
+            .reservation-submit-btn:disabled {
+                opacity: 0.65;
+                cursor: not-allowed;
+            }
+
+        .reservation-custom-form .text-danger {
+            font-size: 12px;
+        }
+    </style>
+
+    <!-- SWEETALERT -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        (function () {
+
+            function initializeReservationForm() {
+
+                const form =
+                    document.getElementById("reservationForm");
+
+                const dateInput =
+                    document.getElementById("date");
+
+                const submitButton =
+                    document.getElementById("reservationSubmitBtn");
+
+                const messageArea =
+                    document.getElementById("reservationMessages");
+
+                function showAlert(icon, title, message) {
+
+                    if (typeof Swal !== "undefined") {
+
+                        Swal.fire({
+                            icon: icon,
+                            title: title,
+                            text: message,
+                            confirmButtonText: "Tamam",
+                            confirmButtonColor: "#ce1212"
+                        });
+
+                    } else {
+
+                        alert(message);
+
+                    }
+                }
+
+                // BUGÜNÜN TARİHİNİ BUL
+                function getToday() {
+
+                    const now = new Date();
+
+                    const year = now.getFullYear();
+
+                    const month =
+                        String(now.getMonth() + 1).padStart(2, "0");
+
+                    const day =
+                        String(now.getDate()).padStart(2, "0");
+
+                    return year + "-" + month + "-" + day;
+                }
+
+                // BUGÜNÜ SEÇ, GEÇMİŞ TARİHLERİ ENGELLE
+                if (dateInput) {
+
+                    const today = getToday();
+
+                    dateInput.min = today;
+
+                    if (!dateInput.value || dateInput.value < today) {
+                        dateInput.value = today;
+                    }
+
+                    dateInput.addEventListener("change", function () {
+
+                        if (this.value && this.value < getToday()) {
+
+                            this.value = getToday();
+
+                            showAlert(
+                                "warning",
+                                "Geçersiz Tarih",
+                                "Geçmiş tarihler için rezervasyon yapılamaz."
+                            );
+                        }
+
+                    });
+                }
+
+                // FORM GÖNDERME
+                if (form) {
+
+                    form.addEventListener("submit", function (event) {
+
+                        if (!form.checkValidity()) {
+
+                            event.preventDefault();
+
+                            showAlert(
+                                "warning",
+                                "Eksik Bilgi",
+                                "Lütfen bütün zorunlu alanları doldurunuz."
+                            );
+
+                            return;
+                        }
+
+                        if (dateInput && dateInput.value < getToday()) {
+
+                            event.preventDefault();
+
+                            showAlert(
+                                "warning",
+                                "Geçersiz Tarih",
+                                "Geçmiş tarihler için rezervasyon yapılamaz."
+                            );
+
+                            return;
+                        }
+
+                        if (submitButton) {
+
+                            submitButton.disabled = true;
+                            submitButton.textContent =
+                                "Rezervasyon Gönderiliyor...";
+                        }
+
+                    });
+                }
+
+                // CONTROLLER BAŞARI / HATA MESAJLARI
+                if (messageArea) {
+
+                    const successMessage =
+                        messageArea.dataset.success || "";
+
+                    const errorMessage =
+                        messageArea.dataset.error || "";
+
+                    if (successMessage) {
+
+                        showAlert(
+                            "success",
+                            "Rezervasyon Talebiniz Alındı!",
+                            successMessage
+                        );
+
+                    } else if (errorMessage) {
+
+                        showAlert(
+                            "error",
+                            "Rezervasyon Kaydedilemedi",
+                            errorMessage
+                        );
+
+                        const section =
+                            document.getElementById("book-a-table");
+
+                        if (section) {
+
+                            section.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start"
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (document.readyState === "loading") {
+
+                document.addEventListener(
+                    "DOMContentLoaded",
+                    initializeReservationForm
+                );
+
+            } else {
+
+                initializeReservationForm();
+
+            }
+
+        })();
+    </script>
+
+</body>
 </html>
