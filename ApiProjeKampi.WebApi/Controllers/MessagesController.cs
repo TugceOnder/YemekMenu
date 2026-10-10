@@ -30,9 +30,16 @@ namespace ApiProjeKampi.WebApi.Controllers
         public IActionResult CreateMessage(CreateMessageDto createMessageDto)
         {
             var value = _mapper.Map<Message>(createMessageDto);
+
+            // Mesajın gönderildiği gerçek tarih ve saat
+            value.SendDate = DateTime.Now;
+            value.IsRead = false;
+            value.Status = "Mesaj Alındı";
+
             _context.Messages.Add(value);
             _context.SaveChanges();
-            return Ok("Mesaj Ekleme İşlemi Başarılı");
+
+            return Ok("Mesaj başarıyla gönderildi.");
         }
 
         [HttpDelete]

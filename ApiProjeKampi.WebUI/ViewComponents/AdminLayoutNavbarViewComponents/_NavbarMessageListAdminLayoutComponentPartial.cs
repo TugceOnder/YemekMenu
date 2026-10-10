@@ -15,15 +15,34 @@ namespace ApiProjeKampi.WebUI.ViewComponents.AdminLayoutNavbarViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var client = _httpClientFactory.CreateClient();
-            var responseMessage = await client.GetAsync("https://localhost:7020/api/Messages/MessageListByIsReadFalse");
-            if (responseMessage.IsSuccessStatusCode)
+            var messages = new List<ResultMessageByIsReadFalseDto>();
+
+            try
             {
-                var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var values = JsonConvert.DeserializeObject<List<ResultMessageByIsReadFalseDto>>(jsonData);
-                return View(values);
+                var client = _httpClientFactory.CreateClient();
+
+                var responseMessage = await client.GetAsync(
+                    "https://localhost:7020/api/Messages/MessageListByIsReadFalse");
+
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    var jsonData =
+                        await responseMessage.Content.ReadAsStringAsync();
+
+                    messages = JsonConvert.DeserializeObject<
+                        List<ResultMessageByIsReadFalseDto>>(jsonData)
+                        ?? new List<ResultMessageByIsReadFalseDto>();
+                }
             }
-            return View();
+            catch (Exception ex)
+            {
+                Console.WriteLine("Mesaj yükleme hatası: " + ex.Message);
+            }
+
+            return View(
+                "~/Views/Shared/Components/_NavbarMessageListAdminLayoutComponentPartial/Default.cshtml",
+                messages
+            );
         }
     }
 }

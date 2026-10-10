@@ -1,30 +1,214 @@
 ﻿@model CreateMessageDto
 
-<form asp-action="SendMessage" method="post" asp-controller="Message" class="php-email-form" data-aos="fade-up" data-aos-delay="600">
+<style>
+    .contact-mvc-form {
+        width: 100%;
+        margin-top: 35px;
+    }
+
+        .contact-mvc-form .form-control {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 14px;
+        }
+
+            .contact-mvc-form .form-control:focus {
+                border-color: #ce1212;
+                box-shadow: 0 0 0 3px rgba(206, 18, 18, 0.1);
+            }
+
+    .contact-send-btn {
+        background: #ce1212;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 13px 32px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .contact-send-btn:hover {
+            background: #e53935;
+        }
+
+        .contact-send-btn:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+</style>
+
+<form action="@Url.Action("SendMessage", "Message")"
+      method="post"
+      id="contactMessageForm"
+      class="contact-mvc-form"
+      data-aos="fade-up"
+      data-aos-delay="600">
+
+    @Html.AntiForgeryToken()
+
+    <div id="contactMessageAlerts"
+         data-success="@TempData["MessageSuccess"]"
+         data-error="@TempData["MessageError"]"
+         hidden>
+    </div>
+
     <div class="row gy-4">
 
+        <!-- AD SOYAD -->
         <div class="col-md-6">
-            <input type="text" asp-for="NameSurname" class="form-control" placeholder="Adınız Soyadınız" required="">
+            <input type="text"
+                   asp-for="NameSurname"
+                   class="form-control"
+                   placeholder="Adınız Soyadınız"
+                   required />
         </div>
 
-        <div class="col-md-6 ">
-            <input type="email" class="form-control" asp-for="Email" placeholder="Email Adresiniz" required="">
+        <!-- E-POSTA -->
+        <div class="col-md-6">
+            <input type="email"
+                   asp-for="Email"
+                   class="form-control"
+                   placeholder="E-posta Adresiniz"
+                   required />
         </div>
 
+        <!-- KONU -->
         <div class="col-md-12">
-            <input type="text" class="form-control" asp-for="Subject" placeholder="Konu" required="">
+            <input type="text"
+                   asp-for="Subject"
+                   class="form-control"
+                   placeholder="Konu"
+                   required />
         </div>
 
+        <!-- MESAJ -->
         <div class="col-md-12">
-            <textarea class="form-control" asp-for="MessageDetails" rows="6" placeholder="Mesajınız" required=""></textarea>
+            <textarea asp-for="MessageDetails"
+                      class="form-control"
+                      rows="6"
+                      placeholder="Mesajınız"
+                      required></textarea>
         </div>
 
+        <!-- GÖNDER -->
         <div class="col-md-12 text-center">
-            <div class="loading">Loading</div>
-            <div class="error-message"></div>
-            <div class="sent-message">Your message has been sent. Thank you!</div>
-            <button type="submit">Mesajı Gönder</button>
+
+            <button type="submit"
+                    id="contactMessageSubmit"
+                    class="contact-send-btn">
+
+                <i class="bi bi-send"></i>
+                Mesajı Gönder
+            </button>
+
         </div>
 
     </div>
-</form><!-- End Contact Form -->
+</form>
+
+<!-- SWEETALERT -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    (function () {
+
+        function initializeContactMessageForm() {
+
+            const form =
+                document.getElementById("contactMessageForm");
+
+            const button =
+                document.getElementById("contactMessageSubmit");
+
+            const alerts =
+                document.getElementById("contactMessageAlerts");
+
+            function showMessage(icon, title, message) {
+
+                if (typeof Swal !== "undefined") {
+
+                    Swal.fire({
+                        icon: icon,
+                        title: title,
+                        text: message,
+                        confirmButtonText: "Tamam",
+                        confirmButtonColor: "#ce1212"
+                    });
+
+                } else {
+
+                    alert(message);
+                }
+            }
+
+            // FORM GÖNDERME
+            if (form) {
+
+                form.addEventListener("submit", function (event) {
+
+                    if (!form.checkValidity()) {
+
+                        event.preventDefault();
+                        form.reportValidity();
+
+                        showMessage(
+                            "warning",
+                            "Eksik Bilgi",
+                            "Lütfen bütün alanları doğru doldurunuz."
+                        );
+
+                        return;
+                    }
+
+                    if (button) {
+
+                        button.disabled = true;
+                        button.textContent = "Mesaj Gönderiliyor...";
+                    }
+                });
+            }
+
+            // CONTROLLER MESAJLARI
+            if (alerts) {
+
+                const successMessage =
+                    alerts.dataset.success || "";
+
+                const errorMessage =
+                    alerts.dataset.error || "";
+
+                if (successMessage) {
+
+                    showMessage(
+                        "success",
+                        "Mesajınız Gönderildi!",
+                        successMessage
+                    );
+
+                } else if (errorMessage) {
+
+                    showMessage(
+                        "error",
+                        "Mesaj Gönderilemedi",
+                        errorMessage
+                    );
+                }
+            }
+        }
+
+        if (document.readyState === "loading") {
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                initializeContactMessageForm
+            );
+
+        } else {
+
+            initializeContactMessageForm();
+        }
+
+    })();
+</script>

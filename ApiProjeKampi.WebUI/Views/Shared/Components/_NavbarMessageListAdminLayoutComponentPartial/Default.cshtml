@@ -1,41 +1,96 @@
 ﻿@model List<ApiProjeKampi.WebUI.Dtos.MessageDtos.ResultMessageByIsReadFalseDto>
 
+@{
+    var messages = Model
+        ?? new List<ApiProjeKampi.WebUI.Dtos.MessageDtos.ResultMessageByIsReadFalseDto>();
+}
 
 <li class="dropdown dropdown-list-toggle">
-    <a href="#" data-toggle="dropdown"
-    class="nav-link nav-link-lg message-toggle">
+
+    <!-- MESAJ İKONU -->
+    <a href="#"
+       data-toggle="dropdown"
+       class="nav-link nav-link-lg message-toggle">
+
         <i data-feather="mail"></i>
+
         <span class="badge headerBadge1">
-            @Model.Count
+            @messages.Count
         </span>
     </a>
+
+    <!-- AÇILIR MESAJ LİSTESİ -->
     <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
+
         <div class="dropdown-header">
             Mesajlar
-            <div class="float-right">
-                <a href="#">Tümünü Okundu Olarak İşaretle</a>
-            </div>
         </div>
+
         <div class="dropdown-list-content dropdown-list-message">
-            @foreach(var item in Model)
+
+            @if (messages.Count > 0)
             {
-                <a href="/Message/MessageDetail/@item.MessageId" class="dropdown-item">
-                    <span class="dropdown-item-avatar text-white">
-                        <img alt="image" src="/otika-bootstrap-admin-template/assets/img/users/user-1.png" class="rounded-circle">
-                    </span> <span class="dropdown-item-desc">
-                        <span class="message-user">
-                            @item.NameSurname
+                @foreach (var item in messages)
+                {
+                    <a href="@Url.Action("AsnwerMessageWithOpenAI", "Message", new { id = item.MessageId })"
+                       class="dropdown-item">
+
+                        <span class="dropdown-item-avatar text-white">
+
+                            <img alt="Kullanıcı"
+                                 src="/otika-bootstrap-admin-template/assets/img/users/user-1.png"
+                                 class="rounded-circle" />
+
                         </span>
-                        <span class="time messege-text">@item.Subject</span>
-                        <span class="time">@item.SendDate.ToString("dd MMMM yyyy - HH:mm")</span>
-                    </span>
-                </a>
+
+                        <span class="dropdown-item-desc">
+
+                            <span class="message-user">
+                                @item.NameSurname
+                            </span>
+
+                            <span class="time messege-text">
+                                @item.Subject
+                            </span>
+
+                            <span class="time">
+                                @item.SendDate.ToString("dd MMMM yyyy - HH:mm")
+                            </span>
+
+                        </span>
+
+                    </a>
+                }
             }
-          
-       
+            else
+            {
+                <div class="text-center p-3 text-muted">
+
+                    <i class="fas fa-envelope-open-text"
+                       style="font-size: 22px; margin-bottom: 8px;"></i>
+
+                    <p class="mb-0">
+                        Okunmamış mesaj bulunmuyor.
+                    </p>
+
+                </div>
+            }
+
         </div>
+
+        <!-- TÜM MESAJLAR -->
         <div class="dropdown-footer text-center">
-            <a href="/Message/MessageList/">Tüm Mesajları Gör <i class="fas fa-chevron-right"></i></a>
+
+            <a href="@Url.Action("MessageList", "Message")">
+
+                Tüm Mesajları Gör
+
+                <i class="fas fa-chevron-right"></i>
+
+            </a>
+
         </div>
+
     </div>
+
 </li>

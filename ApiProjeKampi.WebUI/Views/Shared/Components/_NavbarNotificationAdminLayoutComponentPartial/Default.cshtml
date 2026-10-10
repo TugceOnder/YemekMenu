@@ -1,34 +1,66 @@
 ﻿@model List<ApiProjeKampi.WebUI.Dtos.NotificationDtos.ResultNotificationDto>
 
-    <li class="dropdown dropdown-list-toggle">
-            <a href="#" data-toggle="dropdown"
-               class="nav-link notification-toggle nav-link-lg">
-                <i data-feather="bell" class="bell"></i>
-            </a>
-            <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
-                <div class="dropdown-header">
-                    Bildirimler
-                    <div class="float-right">
-                        <a href="#">Tüm Bildirimler</a>
-                    </div>
-                </div>
-                <div class="dropdown-list-content dropdown-list-icons">
-            @foreach (var item in Model)
+@{
+    var notifications = Model
+        ?? new List<ApiProjeKampi.WebUI.Dtos.NotificationDtos.ResultNotificationDto>();
+}
+
+<li class="dropdown dropdown-list-toggle">
+
+    <a href="#"
+       data-toggle="dropdown"
+       class="nav-link notification-toggle nav-link-lg">
+
+        <i data-feather="bell" class="bell"></i>
+
+        @if (notifications.Count > 0)
+        {
+            <span class="badge headerBadge1">
+                @notifications.Count
+            </span>
+        }
+    </a>
+
+    <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
+
+        <div class="dropdown-header">
+            Bildirimler
+        </div>
+
+        <div class="dropdown-list-content dropdown-list-icons">
+
+            @if (notifications.Count > 0)
             {
-                <a href="#" class="dropdown-item dropdown-item-unread">
-                    <span class="dropdown-item-icon bg-primary text-white">
-                        <i class="@item.IconUrl"></i>
-                    </span> <span class="dropdown-item-desc">
-                        @item.Description <span class="time">
-                            @item.NotificationDate.ToString("HH:mm")
+                @foreach (var item in notifications)
+                {
+                    <a href="#" class="dropdown-item dropdown-item-unread">
+
+                        <span class="dropdown-item-icon bg-primary text-white">
+                            <i class="@item.IconUrl"></i>
                         </span>
-                    </span>
-                </a>
+
+                        <span class="dropdown-item-desc">
+
+                            @item.Description
+
+                            <span class="time">
+                                @item.NotificationDate.ToString("HH:mm")
+                            </span>
+
+                        </span>
+
+                    </a>
+                }
             }
-            
+            else
+            {
+                <div class="text-center p-3 text-muted">
+                    Henüz bildirim bulunmuyor.
                 </div>
-                <div class="dropdown-footer text-center">
-                    <a href="#">Tümünü Okundu Olarak İşaretle <i class="fas fa-chevron-right"></i></a>
-                </div>
-            </div>
-        </li>
+            }
+
+        </div>
+
+    </div>
+
+</li>

@@ -9,24 +9,51 @@
     <div class="section-body">
         <div class="row">
             <div class="col-12 col-md-12 col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>OpenAI ile Otomatik Mesaj Yanıt Sayfası</h4>
-                    </div>
-                    <div class="card-body">
-                        <form method="post">
-                            <input type="hidden" asp-for="MessageId" />
-                            <label>Müşteri Mesajı</label>
-                            <textarea class="form-control" asp-for="MessageDetails" style="height:200px !important;"></textarea>
-                            <br />
 
-                            <label>OpenAI Otomatik Cevabı</label>
-                            <textarea class="form-control" style="height:200px !important;">@ViewBag.answerAI</textarea>
-                            <br />
-                            <button class="btn btn-primary">Cevabı Mail Olarak Gönder</button>
-                        </form>
+                <div class="card">
+
+                    <div class="card-header">
+                        <h4>
+                            <i class="fas fa-envelope-open-text"></i>
+                            OpenAI ile Otomatik Mesaj Yanıt Sayfası
+                        </h4>
                     </div>
+
+                    <div class="card-body">
+
+                        <form method="post">
+
+                            <input type="hidden" asp-for="MessageId" />
+
+                            <div class="form-group">
+                                <label>Müşteri Mesajı</label>
+
+                                <textarea class="form-control"
+                                          asp-for="MessageDetails"
+                                          style="height:200px !important;"
+                                          readonly></textarea>
+                            </div>
+
+                        </form>
+
+                        <!-- GERİ DÖN -->
+                        <div class="mt-4">
+
+                            <a href="@Url.Action("MessageList", "Message")"
+                               class="btn btn-secondary"
+                               style="border-radius:8px; padding:10px 20px;">
+
+                                <i class="fas fa-arrow-left"></i>
+                                Geri Dön
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
                 </div>
+
             </div>
         </div>
     </div>
