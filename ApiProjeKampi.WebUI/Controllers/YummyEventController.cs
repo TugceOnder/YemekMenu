@@ -1,83 +1,164 @@
-﻿using ApiProjeKampi.WebUI.Dtos.YummyEventDtos;
+﻿
+using ApiProjeKampi.WebUI.Dtos.YummyEventDtos;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Text;
+using System.Net.Http.Json;
 
-namespace ApiProjeKampi.WebUI.Controllers
+public class YummyEventController : Controller
 {
-    public class YummyEventController : Controller
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public YummyEventController(
+        IHttpClientFactory httpClientFactory)
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        _httpClientFactory = httpClientFactory;
+    }
 
-        public YummyEventController(IHttpClientFactory httpClientFactory)
+    private HttpClient CreateApiClient()
+    {
+        var client = _httpClientFactory.CreateClient();
+        client.BaseAddress =
+            new Uri("https://localhost:7020/");
+        return client;
+    }
+
+    private async Task<string?> UploadImage(
+        HttpClient client, IFormFile? imageFile)
+    {
+        if (imageFile == null || imageFile.Length == 0)
+            return null;
+
+        using var content = new MultipartFormDataContent();
+        using var stream = imageFile.OpenReadStream();
+        using var fileContent = new StreamContent(stream);
+
+        fileContent.Headers.ContentType =
+            new System.Net.Http.Headers.MediaTypeHeaderValue(
+                imageFile.ContentType);
+
+        content.Add(
+            fileContent, "imageFile", imageFile.FileName);
+
+        var response = await client.PostAsync(
+            "api/YummyEvents/upload-image", content);
+
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException(
+                await response.Content.ReadAsStringAsync());
+
+        var result = await response.Content
+            .ReadFromJsonAsync<ImageUploadResponse>();
+
+        return result?.ImageUrl;
+    }
+
+    private class ImageUploadResponse
+    {
+        public string ImageUrl { get; set; } = "";
+    }
+
+    [HttpGet]
+    public IActionResult CreateYummyEvent()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateYummyEvent(
+        CreateYummyEventDto model,
+        IFormFile? imageFile)
+    {
+        if (imageFile == null || imageFile.Length == 0)
         {
-            _httpClientFactory = httpClientFactory;
+            ModelState.AddModelError(
+                "imageFile", "Lütfen fotoğraf seçiniz.");
+
+            return View(model);
         }
 
-        public async Task<IActionResult> YummyEventList()
-        {
-            var client = _httpClientFactory.CreateClient();
-            var responseMessage = await client.GetAsync("https://localhost:7020/api/YummyEvents");
-            if (responseMessage.IsSuccessStatusCode)
-            {
-                var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var values = JsonConvert.DeserializeObject<List<ResultYummyEventDto>>(jsonData);
-                return View(values);
-            }
-            return View();
-        }
+        if (!ModelState.IsValid)
+            return View(model);
 
-        [HttpGet]
-        public IActionResult CreateYummyEvent()
+        try
         {
-            return View();
-        }
+            var client = CreateApiClient();
 
-        [HttpPost]
-        public async Task<IActionResult> CreateYummyEvent(CreateYummyEventDto createYummyEventDto)
-        {
-            var client = _httpClientFactory.CreateClient();
-            var jsonData = JsonConvert.SerializeObject(createYummyEventDto);
-            StringContent stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("https://localhost:7020/api/YummyEvents", stringContent);
-            if (responseMessage.IsSuccessStatusCode)
-            {
+            model.ImageUrl =
+                await UploadImage(client, imageFile) ?? "";
+
+            var response = await client.PostAsJsonAsync(
+                "api/YummyEvents", model);
+
+            if (response.IsSuccessStatusCode)
                 return RedirectToAction("YummyEventList");
-            }
-            return View();
-        }
 
-        public async Task<IActionResult> DeleteYummyEvent(int id)
+            ModelState.AddModelError(
+                "", "Organizasyon kaydedilemedi.");
+        }
+        catch (Exception)
         {
-            var client = _httpClientFactory.CreateClient();
-            await client.DeleteAsync("https://localhost:7020/api/YummyEvents?id=" + id);
-            return RedirectToAction("YummyEventList");
+            ModelState.AddModelError(
+                "", "Fotoğraf yükleme veya kayıt sırasında hata oluştu.");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> UpdateYummyEvent(int id)
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> UpdateYummyEvent(int id)
+    {
+        var client = CreateApiClient();
+
+        var model = await client.GetFromJsonAsync<GetYummyEventByIdDto>(
+            $"api/YummyEvents/GetYummyEvent?id={id}");
+
+        if (model == null)
+            return NotFound();
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateYummyEvent(
+        GetYummyEventByIdDto model,
+        IFormFile? imageFile)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        try
         {
-            var client = _httpClientFactory.CreateClient();
-            var responseMessage = await client.GetAsync("https://localhost:7020/api/YummyEvents/GetYummyEvent?id=" + id);
-            var jsonData = await responseMessage.Content.ReadAsStringAsync();
-            var value = JsonConvert.DeserializeObject<GetYummyEventByIdDto>(jsonData);
-            return View(value);
+            var client = CreateApiClient();
+
+            // Eski resmi sunucudan oku.
+            var existing = await client.GetFromJsonAsync<GetYummyEventByIdDto>(
+                $"api/YummyEvents/GetYummyEvent?id={model.YummyEventId}");
+
+            if (existing == null)
+                return NotFound();
+
+            // Yeni resim varsa yükle, yoksa eskisini koru.
+            model.ImageUrl = imageFile != null
+                ? await UploadImage(client, imageFile)
+                    ?? existing.ImageUrl
+                : existing.ImageUrl;
+
+            var response = await client.PutAsJsonAsync(
+                "api/YummyEvents", model);
+
+            if (response.IsSuccessStatusCode)
+                return RedirectToAction("YummyEventList");
+
+            ModelState.AddModelError(
+                "", "Organizasyon güncellenemedi.");
         }
-
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateYummyEvent(UpdateYummyEventDto updateYummyEventDto)
+        catch (Exception)
         {
-            var client = _httpClientFactory.CreateClient();
-            var jsonData = JsonConvert.SerializeObject(updateYummyEventDto);
-            StringContent stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            await client.PutAsync("https://localhost:7020/api/YummyEvents/", stringContent);
-            return RedirectToAction("YummyEventList");
+            ModelState.AddModelError(
+                "", "Güncelleme sırasında hata oluştu.");
         }
 
-        public IActionResult Test()
-        {
-            return View();
-        }
+        return View(model);
     }
 }

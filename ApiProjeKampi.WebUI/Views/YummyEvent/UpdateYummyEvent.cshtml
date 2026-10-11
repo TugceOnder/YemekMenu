@@ -1,4 +1,4 @@
-﻿@model GetYummyEventByIdDto
+﻿@model ApiProjeKampi.WebUI.Dtos.YummyEventDtos.GetYummyEventByIdDto
 
 @{
     ViewData["Title"] = "UpdateYummyEvent";
@@ -8,27 +8,83 @@
 <section class="section">
     <div class="section-body">
         <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4>Organizasyon Güncelleme Sayfası</h4>
+                        <h4>Organizasyon Güncelleme</h4>
                     </div>
+
                     <div class="card-body">
-                        <form method="post">
+                        <form asp-controller="YummyEvent"
+                              asp-action="UpdateYummyEvent"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
                             <input type="hidden" asp-for="YummyEventId" />
-                            <label>Organizasyon Başlığı</label>
-                            <input type="text" asp-for="Title" class="form-control" />
-                            <br />
-                            <label>Organizasyon Açıklaması</label>
-                            <input type="text" asp-for="Description" class="form-control" />
-                            <br />
-                            <label>Organizasyon Fiyatı</label>
-                            <input type="text" asp-for="Price" class="form-control" />
-                            <br />
-                            <label>Organizasyon Görsel URL</label>
-                            <input type="text" asp-for="ImageUrl" class="form-control" />
-                            <br />
-                            <button class="btn btn-success">Organizasyonu Güncelle</button>
+                            <input type="hidden" asp-for="ImageUrl" />
+
+                            <div class="form-group">
+                                <label asp-for="Title">Organizasyon Başlığı</label>
+                                <input asp-for="Title" class="form-control" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Description">Organizasyon Açıklaması</label>
+                                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Price">Organizasyon Fiyatı</label>
+                                <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mevcut Fotoğraf</label>
+                                <div>
+                                    @if (!string.IsNullOrWhiteSpace(Model?.ImageUrl))
+                                    {
+                                        <img src="@Model.ImageUrl"
+                                             alt="Mevcut fotoğraf"
+                                             style="width:220px; height:160px; object-fit:cover; border-radius:10px;" />
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Mevcut fotoğraf bulunmuyor.</p>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="imageFile">Yeni Fotoğraf Seç (Galeri veya Dosya)</label>
+                                <input type="file"
+                                       id="imageFile"
+                                       name="imageFile"
+                                       class="form-control"
+                                       accept="image/*" />
+                                <small class="form-text text-muted">
+                                    Yeni fotoğraf seçmezseniz mevcut fotoğraf korunur.
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <img id="eventPreview"
+                                     alt="Yeni fotoğraf önizlemesi"
+                                     style="display:none; max-width:260px; max-height:220px; object-fit:cover; border-radius:10px;" />
+                            </div>
+
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Değişiklikleri Kaydet
+                            </button>
+
+                            <a asp-controller="YummyEvent"
+                               asp-action="YummyEventList"
+                               class="btn btn-secondary ml-2">
+                                Geri Dön
+                            </a>
                         </form>
                     </div>
                 </div>
@@ -37,4 +93,39 @@
     </div>
 </section>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const input = document.getElementById("imageFile");
+        const preview = document.getElementById("eventPreview");
+        let currentUrl = null;
 
+        input.addEventListener("change", function () {
+            if (currentUrl) {
+                URL.revokeObjectURL(currentUrl);
+                currentUrl = null;
+            }
+
+            preview.style.display = "none";
+            preview.removeAttribute("src");
+
+            const file = input.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                alert("Lütfen geçerli bir görsel formatı (JPG, PNG, WEBP) seçiniz.");
+                input.value = "";
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Fotoğraf en fazla 5 MB olabilir.");
+                input.value = "";
+                return;
+            }
+
+            currentUrl = URL.createObjectURL(file);
+            preview.src = currentUrl;
+            preview.style.display = "block";
+        });
+    });
+</script>

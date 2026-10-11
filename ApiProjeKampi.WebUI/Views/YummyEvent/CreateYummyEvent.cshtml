@@ -1,4 +1,4 @@
-﻿@model CreateYummyEventDto
+﻿@model ApiProjeKampi.WebUI.Dtos.YummyEventDtos.CreateYummyEventDto
 
 @{
     ViewData["Title"] = "CreateYummyEvent";
@@ -8,27 +8,90 @@
 <section class="section">
     <div class="section-body">
         <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
+            <div class="col-12">
                 <div class="card">
+
                     <div class="card-header">
-                        <h4>Yeni Organizasyon Ekleme Sayfası</h4>
+                        <h4>Yeni Organizasyon Ekleme</h4>
                     </div>
+
                     <div class="card-body">
-                        <form method="post">
-                            <label>Organizasyon Başlığı</label>
-                            <input type="text" asp-for="Title" class="form-control" />
-                            <br />
-                            <label>Organizasyon Açıklaması</label>
-                            <input type="text" asp-for="Description" class="form-control" />
-                            <br />
-                            <label>Organizasyon Fiyatı</label>
-                            <input type="text" asp-for="Price" class="form-control" />
-                            <br />
-                            <label>Organizasyon Görsel URL</label>
-                            <input type="text" asp-for="ImageUrl" class="form-control" />
-                            <br />
-                            <button class="btn btn-primary">Organizasyonu Oluştur</button>
+
+                        <form asp-controller="YummyEvent"
+                              asp-action="CreateYummyEvent"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="All"
+                                 class="text-danger mb-3"></div>
+
+                            <div class="form-group">
+                                <label>Organizasyon Başlığı</label>
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       required />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Organizasyon Açıklaması</label>
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          rows="4"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Organizasyon Fiyatı</label>
+                                <input asp-for="Price"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       class="form-control"
+                                       required />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Organizasyon Fotoğrafı</label>
+
+                                <input type="file"
+                                       id="eventImage"
+                                       name="imageFile"
+                                       class="form-control"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       required />
+
+                                <small class="text-muted">
+                                    Bilgisayardan veya telefon galerisinden
+                                    fotoğraf seçebilirsiniz. Maksimum 5 MB.
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <img id="eventPreview"
+                                     alt="Fotoğraf önizlemesi"
+                                     style="display:none;
+                                            width:260px;
+                                            max-width:100%;
+                                            height:200px;
+                                            object-fit:cover;
+                                            border-radius:10px;" />
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Organizasyonu Oluştur
+                            </button>
+
+                            <a asp-controller="YummyEvent"
+                               asp-action="YummyEventList"
+                               class="btn btn-secondary ml-2">
+                                Geri Dön
+                            </a>
+
                         </form>
+
                     </div>
                 </div>
             </div>
@@ -36,3 +99,48 @@
     </div>
 </section>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const input = document.getElementById("eventImage");
+        const preview = document.getElementById("eventPreview");
+        let currentUrl = null;
+
+        input.addEventListener("change", function () {
+
+            if (currentUrl) {
+                URL.revokeObjectURL(currentUrl);
+                currentUrl = null;
+            }
+
+            preview.style.display = "none";
+            preview.removeAttribute("src");
+
+            const file = input.files[0];
+
+            if (!file) return;
+
+            const allowed = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
+
+            if (!allowed.includes(file.type)) {
+                alert("JPG, PNG veya WEBP fotoğraf seçiniz.");
+                input.value = "";
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Fotoğraf en fazla 5 MB olabilir.");
+                input.value = "";
+                return;
+            }
+
+            currentUrl = URL.createObjectURL(file);
+            preview.src = currentUrl;
+            preview.style.display = "block";
+        });
+    });
+</script>
