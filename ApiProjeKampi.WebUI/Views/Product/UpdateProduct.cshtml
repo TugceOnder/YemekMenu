@@ -6,7 +6,9 @@
     Layout = "~/Views/AdminLayout/Index.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/PartialStyle.css" asp-append-version="true" />
+<link rel="stylesheet"
+      href="~/css/PartialStyle.css"
+      asp-append-version="true" />
 
 <style>
     .product-form-card {
@@ -80,60 +82,93 @@
                     </div>
 
                     <div class="card-body">
-                        <form action="/Product/UpdateProduct"
+
+                        <form asp-controller="Product"
+                              asp-action="UpdateProduct"
                               method="post"
                               enctype="multipart/form-data">
 
                             @Html.AntiForgeryToken()
 
                             <input asp-for="ProductId" type="hidden" />
+                            <input asp-for="ImageUrl" type="hidden" />
 
                             <div asp-validation-summary="ModelOnly"
                                  class="text-danger mb-3"></div>
 
+                            <!-- ÜRÜN ADI -->
                             <div class="form-group mb-3">
-                                <label class="product-label">Ürün Adı</label>
+                                <label asp-for="ProductName"
+                                       class="product-label">
+                                    Ürün Adı
+                                </label>
+
                                 <input asp-for="ProductName"
                                        class="form-control product-input"
                                        required />
+
                                 <span asp-validation-for="ProductName"
                                       class="text-danger"></span>
                             </div>
 
+                            <!-- FİYAT -->
                             <div class="form-group mb-3">
-                                <label class="product-label">Fiyat</label>
+                                <label asp-for="Price"
+                                       class="product-label">
+                                    Fiyat
+                                </label>
+
                                 <input asp-for="Price"
+                                       type="text"
+                                       inputmode="decimal"
                                        class="form-control product-input"
-                                       type="number"
-                                       step="0.01"
-                                       min="0"
+                                       placeholder="Örn: 125,50"
                                        required />
+
+                                <small class="text-muted">
+                                    Fiyatı örneğin 125,50 şeklinde yazabilirsiniz.
+                                </small>
+
                                 <span asp-validation-for="Price"
                                       class="text-danger"></span>
                             </div>
 
+                            <!-- KATEGORİ -->
                             <div class="form-group mb-3">
-                                <label class="product-label">Kategori</label>
+                                <label asp-for="CategoryId"
+                                       class="product-label">
+                                    Kategori
+                                </label>
+
                                 <select asp-for="CategoryId"
                                         asp-items="@(ViewBag.v as IEnumerable<SelectListItem>)"
                                         class="form-control product-input"
                                         required>
                                     <option value="">Kategori Seçiniz</option>
                                 </select>
+
                                 <span asp-validation-for="CategoryId"
                                       class="text-danger"></span>
                             </div>
 
+                            <!-- AÇIKLAMA -->
                             <div class="form-group mb-3">
-                                <label class="product-label">Ürün Açıklaması</label>
+                                <label asp-for="ProductDescription"
+                                       class="product-label">
+                                    Ürün Açıklaması
+                                </label>
+
                                 <textarea asp-for="ProductDescription"
                                           rows="4"
                                           class="form-control product-input"></textarea>
+
                                 <span asp-validation-for="ProductDescription"
                                       class="text-danger"></span>
                             </div>
 
+                            <!-- FOTOĞRAF -->
                             <div class="form-group mb-4">
+
                                 <label class="product-label">
                                     Ürün Fotoğrafı
                                 </label>
@@ -144,6 +179,7 @@
                                        value="false" />
 
                                 <div id="currentImageArea">
+
                                     @if (!string.IsNullOrWhiteSpace(Model?.ImageUrl))
                                     {
                                         <img id="currentImage"
@@ -160,24 +196,28 @@
                                 </div>
 
                                 <div class="file-upload-area mt-3">
-                                    <label for="imageFile" class="product-label">
+
+                                    <label for="imageFile"
+                                           class="product-label">
                                         Başka Fotoğraf Seç
                                     </label>
 
                                     <input type="file"
                                            id="imageFile"
                                            name="imageFile"
-                                           accept=".jpg,.jpeg,.png,.webp" />
+                                           accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,image/jpeg,image/png,image/webp,image/gif,image/bmp" />
 
                                     <small class="d-block text-muted mt-2">
                                         Yeni fotoğraf seçmezsen mevcut fotoğraf korunur.
-                                        Maksimum 5 MB.
+                                        Maksimum 20 MB.
+                                        JPG, PNG, WEBP, GIF ve BMP desteklenir.
                                     </small>
 
                                     <div class="text-danger mt-2">
                                         @Html.ValidationMessage("imageFile")
                                     </div>
 
+                                    <!-- YENİ FOTOĞRAF ÖNİZLEME -->
                                     <div>
                                         <img id="imagePreview"
                                              class="product-preview"
@@ -185,6 +225,7 @@
                                              style="display:none;" />
                                     </div>
 
+                                    <!-- FOTOĞRAFI SİL -->
                                     <button type="button"
                                             id="deleteImageBtn"
                                             class="btn btn-danger">
@@ -192,6 +233,7 @@
                                         Fotoğrafı Sil
                                     </button>
 
+                                    <!-- GERİ AL -->
                                     <button type="button"
                                             id="restoreImageBtn"
                                             class="btn btn-outline-secondary"
@@ -206,12 +248,15 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary">
+                            <!-- KAYDET -->
+                            <button type="submit"
+                                    class="btn btn-primary">
                                 <i class="fas fa-save"></i>
                                 Değişiklikleri Kaydet
                             </button>
 
-                            <a href="/Product/ProductList"
+                            <a asp-controller="Product"
+                               asp-action="ProductList"
                                class="btn btn-secondary">
                                 Geri Dön
                             </a>
@@ -226,6 +271,7 @@
 
 <script>
     (function () {
+
         const input = document.getElementById("imageFile");
         const preview = document.getElementById("imagePreview");
         const currentArea = document.getElementById("currentImageArea");
@@ -237,6 +283,7 @@
         let objectUrl = null;
 
         function clearPreview() {
+
             if (objectUrl) {
                 URL.revokeObjectURL(objectUrl);
                 objectUrl = null;
@@ -246,14 +293,32 @@
             preview.style.display = "none";
         }
 
+        // YENİ FOTOĞRAF SEÇ
         input.addEventListener("change", function () {
+
             const file = this.files && this.files[0];
 
-            if (!file)
+            if (!file) {
                 return;
+            }
 
-            if (file.size > 5 * 1024 * 1024) {
-                alert("Fotoğraf en fazla 5 MB olabilir.");
+            if (file.size > 20 * 1024 * 1024) {
+                alert("Fotoğraf en fazla 20 MB olabilir.");
+                input.value = "";
+                return;
+            }
+
+            const extensions = [
+                ".jpg", ".jpeg", ".png",
+                ".webp", ".gif", ".bmp"
+            ];
+
+            const extension = file.name
+                .substring(file.name.lastIndexOf("."))
+                .toLowerCase();
+
+            if (!extensions.includes(extension)) {
+                alert("Desteklenmeyen fotoğraf formatı.");
                 input.value = "";
                 return;
             }
@@ -261,6 +326,7 @@
             clearPreview();
 
             objectUrl = URL.createObjectURL(file);
+
             preview.src = objectUrl;
             preview.style.display = "block";
 
@@ -269,30 +335,38 @@
             restoreBtn.style.display = "inline-block";
 
             status.textContent =
-                "Yeni fotoğraf seçildi. Kaydettiğinizde eskisinin yerine kullanılacak.";
+                "Yeni fotoğraf seçildi. Kaydettiğinizde kullanılacak.";
         });
 
+        // FOTOĞRAFI SİL
         deleteBtn.addEventListener("click", function () {
+
             input.value = "";
             clearPreview();
 
             currentArea.style.display = "none";
             removeField.value = "true";
+
             restoreBtn.style.display = "inline-block";
 
             status.textContent =
-                "Fotoğraf kaldırılacak. İşlemi tamamlamak için Kaydet'e basın.";
+                "Fotoğraf kaldırılacak. Kaydet butonuna basın.";
         });
 
+        // FOTOĞRAFI GERİ AL
         restoreBtn.addEventListener("click", function () {
+
             input.value = "";
             clearPreview();
 
             currentArea.style.display = "block";
             removeField.value = "false";
+
             restoreBtn.style.display = "none";
 
-            status.textContent = "Mevcut fotoğraf korunacak.";
+            status.textContent =
+                "Mevcut fotoğraf korunacak.";
         });
+
     })();
 </script>

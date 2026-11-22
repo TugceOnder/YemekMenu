@@ -13,8 +13,7 @@ namespace ApiProjeKampi.WebUI.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IWebHostEnvironment _environment;
 
-        private const string ApiUrl =
-            "https://localhost:7020/api/";
+        private const string ApiUrl = "https://localhost:7020/api/";
 
         public ProductController(
             IHttpClientFactory httpClientFactory,
@@ -25,13 +24,10 @@ namespace ApiProjeKampi.WebUI.Controllers
         }
 
         // KATEGORİLERİ GETİR
-        private async Task LoadCategoriesAsync(
-            int? selectedId = null)
+        private async Task LoadCategoriesAsync(int? selectedId = null)
         {
             var client = _httpClientFactory.CreateClient();
-
-            var response = await client.GetAsync(
-                ApiUrl + "Categories");
+            var response = await client.GetAsync(ApiUrl + "Categories");
 
             var categories = new List<ResultCategoryDto>();
 
@@ -40,8 +36,8 @@ namespace ApiProjeKampi.WebUI.Controllers
                 var json = await response.Content.ReadAsStringAsync();
 
                 categories =
-                    JsonConvert.DeserializeObject<List<ResultCategoryDto>>(
-                        json) ?? new List<ResultCategoryDto>();
+                    JsonConvert.DeserializeObject<List<ResultCategoryDto>>(json)
+                    ?? new List<ResultCategoryDto>();
             }
 
             ViewBag.v = categories.Select(x => new SelectListItem
@@ -53,78 +49,82 @@ namespace ApiProjeKampi.WebUI.Controllers
         }
 
         // FOTOĞRAF YÜKLEME
-        private async Task<string> SaveProductImageAsync(
-            IFormFile file)
+        private async Task<string> SaveProductImageAsync(IFormFile file)
         {
+            const long maxSize = 20L * 1024 * 1024;
+
+            if (file.Length == 0 || file.Length > maxSize)
+            {
+                throw new InvalidOperationException(
+                    "Fotoğraf boş olamaz ve 20 MB boyutunu geçemez.");
+            }
+
+            var extension = Path.GetExtension(file.FileName)
+                .ToLowerInvariant();
+
             var allowedExtensions = new[]
             {
-                ".jpg", ".jpeg", ".png", ".webp"
+                ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"
             };
-
-            var extension =
-                Path.GetExtension(file.FileName).ToLowerInvariant();
 
             if (!allowedExtensions.Contains(extension))
             {
                 throw new InvalidOperationException(
-                    "Yalnızca JPG, PNG veya WEBP yükleyebilirsiniz.");
+                    "JPG, JPEG, PNG, WEBP, GIF ve BMP desteklenir.");
             }
 
-            if (file.Length == 0 ||
-                file.Length > 5 * 1024 * 1024)
-            {
-                throw new InvalidOperationException(
-                    "Fotoğraf boş olamaz ve 5 MB boyutunu geçemez.");
-            }
-
-            // Dosyanın temel imzasını kontrol et
-            byte[] header = new byte[12];
+            byte[] header = new byte[16];
+            int read;
 
             using (var stream = file.OpenReadStream())
             {
-                int read = await stream.ReadAsync(
+                read = await stream.ReadAsync(
                     header, 0, header.Length);
+            }
 
-                bool jpeg = read >= 3 &&
-                    header[0] == 0xFF &&
-                    header[1] == 0xD8 &&
-                    header[2] == 0xFF;
+            bool jpeg = read >= 3 &&
+                header[0] == 0xFF &&
+                header[1] == 0xD8 &&
+                header[2] == 0xFF;
 
-                bool png = read >= 8 &&
-                    header.Take(8).SequenceEqual(
-                        new byte[]
-                        {
-                            137, 80, 78, 71, 13, 10, 26, 10
-                        });
+            bool png = read >= 8 &&
+                header.Take(8).SequenceEqual(
+                    new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 });
 
-                bool webp = read >= 12 &&
-                    Encoding.ASCII.GetString(header, 0, 4) == "RIFF" &&
-                    Encoding.ASCII.GetString(header, 8, 4) == "WEBP";
+            bool webp = read >= 12 &&
+                Encoding.ASCII.GetString(header, 0, 4) == "RIFF" &&
+                Encoding.ASCII.GetString(header, 8, 4) == "WEBP";
 
-                bool valid = extension switch
-                {
-                    ".jpg" or ".jpeg" => jpeg,
-                    ".png" => png,
-                    ".webp" => webp,
-                    _ => false
-                };
+            bool gif = read >= 6 &&
+                (Encoding.ASCII.GetString(header, 0, 6) == "GIF87a" ||
+                 Encoding.ASCII.GetString(header, 0, 6) == "GIF89a");
 
-                if (!valid)
-                {
-                    throw new InvalidOperationException(
-                        "Geçersiz görsel dosyası.");
-                }
+            bool bmp = read >= 2 &&
+                header[0] == 0x42 &&
+                header[1] == 0x4D;
+
+            bool valid = extension switch
+            {
+                ".jpg" or ".jpeg" => jpeg,
+                ".png" => png,
+                ".webp" => webp,
+                ".gif" => gif,
+                ".bmp" => bmp,
+                _ => false
+            };
+
+            if (!valid)
+            {
+                throw new InvalidOperationException(
+                    "Geçersiz görsel dosyası veya dosya uzantısı.");
             }
 
             var webRoot = _environment.WebRootPath
                 ?? Path.Combine(
-                    _environment.ContentRootPath,
-                    "wwwroot");
+                    _environment.ContentRootPath, "wwwroot");
 
             var folder = Path.Combine(
-                webRoot,
-                "uploads",
-                "products");
+                webRoot, "uploads", "products");
 
             Directory.CreateDirectory(folder);
 
@@ -133,7 +133,7 @@ namespace ApiProjeKampi.WebUI.Controllers
 
             var filePath = Path.Combine(folder, fileName);
 
-            using (var stream = new FileStream(
+            await using (var stream = new FileStream(
                 filePath, FileMode.CreateNew))
             {
                 await file.CopyToAsync(stream);
@@ -165,21 +165,21 @@ namespace ApiProjeKampi.WebUI.Controllers
                 var json = await response.Content.ReadAsStringAsync();
 
                 var products =
-                    JsonConvert.DeserializeObject<List<ResultProductDto>>(
-                        json) ?? new List<ResultProductDto>();
+                    JsonConvert.DeserializeObject<List<ResultProductDto>>(json)
+                    ?? new List<ResultProductDto>();
 
                 return View(products);
             }
             catch (HttpRequestException)
             {
                 TempData["ErrorMessage"] =
-                    "WebApi bağlantısı kurulamadı.";
+                    "WebAPI bağlantısı kurulamadı.";
 
                 return View(new List<ResultProductDto>());
             }
         }
 
-        // YENİ ÜRÜN EKLEME - GET
+        // ÜRÜN EKLEME - GET
         [HttpGet]
         public async Task<IActionResult> CreateProduct()
         {
@@ -188,15 +188,13 @@ namespace ApiProjeKampi.WebUI.Controllers
             return View(new CreateProductDto());
         }
 
-        // YENİ ÜRÜN EKLEME - POST
+        // ÜRÜN EKLEME - POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProduct(
             CreateProductDto createProductDto,
             IFormFile? imageFile)
         {
-            // ImageUrl formdan gelmez, dosya yüklendikten
-            // sonra sunucuda oluşturulur.
             ModelState.Remove(nameof(CreateProductDto.ImageUrl));
 
             if (!ModelState.IsValid)
@@ -207,7 +205,6 @@ namespace ApiProjeKampi.WebUI.Controllers
 
             try
             {
-                // Fotoğraf eklemek isteğe bağlı
                 createProductDto.ImageUrl = "";
 
                 if (imageFile != null && imageFile.Length > 0)
@@ -218,8 +215,7 @@ namespace ApiProjeKampi.WebUI.Controllers
 
                 var client = _httpClientFactory.CreateClient();
 
-                var json =
-                    JsonConvert.SerializeObject(createProductDto);
+                var json = JsonConvert.SerializeObject(createProductDto);
 
                 using var content = new StringContent(
                     json, Encoding.UTF8, "application/json");
@@ -248,18 +244,15 @@ namespace ApiProjeKampi.WebUI.Controllers
             catch (HttpRequestException)
             {
                 ModelState.AddModelError(
-                    "",
-                    "WebApi bağlantısı kurulamadı.");
+                    "", "WebAPI bağlantısı kurulamadı.");
             }
             catch (IOException)
             {
                 ModelState.AddModelError(
-                    "",
-                    "Fotoğraf sunucuya kaydedilemedi.");
+                    "", "Fotoğraf kaydedilemedi.");
             }
 
             await LoadCategoriesAsync(createProductDto.CategoryId);
-
             return View(createProductDto);
         }
 
@@ -289,7 +282,7 @@ namespace ApiProjeKampi.WebUI.Controllers
             catch (HttpRequestException)
             {
                 TempData["ErrorMessage"] =
-                    "WebApi bağlantısı kurulamadı.";
+                    "WebAPI bağlantısı kurulamadı.";
             }
 
             return RedirectToAction(nameof(ProductList));
@@ -336,7 +329,7 @@ namespace ApiProjeKampi.WebUI.Controllers
             catch (HttpRequestException)
             {
                 return StatusCode(
-                    503, "WebApi bağlantısı kurulamadı.");
+                    503, "WebAPI bağlantısı kurulamadı.");
             }
         }
 
@@ -362,7 +355,6 @@ namespace ApiProjeKampi.WebUI.Controllers
             {
                 var client = _httpClientFactory.CreateClient();
 
-                // Veritabanındaki mevcut ürünü API'den getir
                 var currentResponse = await client.GetAsync(
                     ApiUrl + "Products/GetProduct?id=" +
                     updateProductDto.ProductId);
@@ -394,19 +386,17 @@ namespace ApiProjeKampi.WebUI.Controllers
                 if (currentProduct == null)
                     return NotFound("Ürün bulunamadı.");
 
-                // Önce mevcut fotoğrafı koru
+                // Mevcut fotoğrafı koru
                 updateProductDto.ImageUrl =
                     currentProduct.ImageUrl;
 
                 if (removeImage)
                 {
-                    // Kullanıcı fotoğrafı silmek istiyor
                     updateProductDto.ImageUrl = "";
                 }
                 else if (imageFile != null &&
                          imageFile.Length > 0)
                 {
-                    // Kullanıcı başka fotoğraf seçti
                     updateProductDto.ImageUrl =
                         await SaveProductImageAsync(imageFile);
                 }
@@ -418,8 +408,7 @@ namespace ApiProjeKampi.WebUI.Controllers
                     json, Encoding.UTF8, "application/json");
 
                 var response = await client.PutAsync(
-                    ApiUrl + "Products",
-                    content);
+                    ApiUrl + "Products", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -441,7 +430,7 @@ namespace ApiProjeKampi.WebUI.Controllers
             catch (HttpRequestException)
             {
                 ModelState.AddModelError(
-                    "", "WebApi bağlantısı kurulamadı.");
+                    "", "WebAPI bağlantısı kurulamadı.");
             }
             catch (IOException)
             {
@@ -472,8 +461,7 @@ namespace ApiProjeKampi.WebUI.Controllers
                 var json = await response.Content.ReadAsStringAsync();
 
                 var product =
-                    JsonConvert.DeserializeObject<GetProductByIdDto>(
-                        json);
+                    JsonConvert.DeserializeObject<GetProductByIdDto>(json);
 
                 if (product == null)
                     return NotFound();
@@ -483,11 +471,11 @@ namespace ApiProjeKampi.WebUI.Controllers
             catch (HttpRequestException)
             {
                 return StatusCode(
-                    503, "WebApi bağlantısı kurulamadı.");
+                    503, "WebAPI bağlantısı kurulamadı.");
             }
         }
 
-        // SÜRÜKLE-BIRAK ÜRÜN SIRALAMA
+        // ÜRÜN SIRALAMA
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProductOrder(
@@ -539,8 +527,7 @@ namespace ApiProjeKampi.WebUI.Controllers
             catch (HttpRequestException ex)
             {
                 return StatusCode(
-                    503,
-                    "WebApi bağlantısı kurulamadı: " + ex.Message);
+                    503, "WebAPI bağlantısı kurulamadı: " + ex.Message);
             }
         }
     }
